@@ -1,10 +1,12 @@
 # NFL Wordle
 
-A Wordle-style guessing game where you try to guess the mystery NFL player by their conference, division, position, jersey number, and team!
+A Wordle-style guessing game where you try to guess the mystery NFL player by typing their name! The game automatically fetches all player information and displays it in a beautiful Wordle-style format.
 
 ## Features
 
-- 🎮 **Wordle-style gameplay**: Guess 5 attributes to identify the mystery NFL player
+- 🎮 **Wordle-style gameplay**: Type a player's name to guess the mystery NFL player
+- 🔍 **Smart autocomplete**: Real-time suggestions as you type
+- 🧠 **Fuzzy matching**: Handles typos and partial names automatically
 - 🔄 **Automatic updates**: Fetches current NFL rosters from ESPN API
 - 💾 **Smart caching**: Local cache for fast loading and offline play
 - 🎨 **Modern UI**: Smooth animations and fluid user experience
@@ -14,18 +16,24 @@ A Wordle-style guessing game where you try to guess the mystery NFL player by th
 ## How to Play
 
 1. Click "New Game" to start
-2. Fill in all 5 fields:
-   - **Conference**: AFC or NFC
-   - **Division**: One of the 8 NFL divisions
-   - **Position**: Player position (QB, RB, WR, etc.)
-   - **Jersey Number**: 0-99
-   - **Team**: One of the 32 NFL teams
-3. Click "Submit Guess" to see feedback
-4. Use the color-coded feedback:
-   - 🟢 **Green**: Correct!
-   - 🟠 **Orange**: Close/Partial match
-   - ⚫ **Gray**: Incorrect
-5. Win by guessing all 5 attributes correctly (up to 6 guesses)
+2. Type a player's name in the input field (e.g., "Patrick Mahomes" or "pat mah")
+3. Select a player from the autocomplete dropdown or press Enter
+4. Click "Submit Guess" to see the Wordle-style comparison
+5. The game shows 6 attributes with color-coded feedback:
+   - **Name**: 🟢 Green if correct
+   - **Conference**: 🟢 Green if correct, ⚫ Gray if incorrect
+   - **Division**: 🟢 Green if correct, 🟠 Orange if same conference, ⚫ Gray if incorrect
+   - **Position**: 🟢 Green if correct, ⚫ Gray if incorrect
+   - **Jersey Number**: 🟢 Green if exact, 🟠 Orange if within 5 numbers, ⚫ Gray if incorrect
+   - **Team**: 🟢 Green if correct, 🟠 Orange if same division, ⚫ Gray if incorrect
+6. Win by guessing the correct player name (up to 6 guesses)
+
+### Tips
+
+- The autocomplete helps you find players quickly
+- You can type partial names (e.g., "Mahomes" instead of "Patrick Mahomes")
+- The system handles typos automatically using fuzzy matching
+- Use arrow keys to navigate the autocomplete dropdown
 
 ## Technical Details
 
@@ -34,9 +42,61 @@ A Wordle-style guessing game where you try to guess the mystery NFL player by th
 - **Cache Duration**: 1 hour
 - **Browser Support**: Modern browsers with ES6+ support
 
-## Setup
+## How to Run
 
-Simply open `index.html` in your web browser. No build process or dependencies required!
+### Option 1: Open Directly in Browser
+
+1. Clone or download this repository
+2. Open `index.html` in your web browser
+3. That's it! No build process or dependencies required
+
+### Option 2: Using a Local Server (Recommended)
+
+For the best experience, especially when fetching data from APIs, use a local web server:
+
+#### Using Python (if installed):
+```bash
+# Python 3
+python -m http.server 8000
+
+# Python 2
+python -m SimpleHTTPServer 8000
+```
+Then open `http://localhost:8000` in your browser.
+
+#### Using Node.js (if installed):
+```bash
+# Install http-server globally
+npm install -g http-server
+
+# Run the server
+http-server -p 8000
+```
+Then open `http://localhost:8000` in your browser.
+
+#### Using VS Code:
+1. Install the "Live Server" extension
+2. Right-click on `index.html`
+3. Select "Open with Live Server"
+
+### Option 3: Deploy to GitHub Pages
+
+1. Go to your repository settings on GitHub
+2. Navigate to "Pages" in the left sidebar
+3. Select the `main` branch as the source
+4. Your site will be available at `https://shauryagoyal1316.github.io/nflwordle/`
+
+## File Structure
+
+```
+nflwordle/
+├── index.html      # Main HTML file
+├── styles.css      # Styling and animations
+├── game.js         # Game logic and player matching
+├── nfl-data.js     # Player data fetching and caching
+├── README.md       # This file
+└── .gitignore      # Git ignore file
+```
 
 ## License
 

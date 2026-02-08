@@ -159,6 +159,116 @@ h1 {
     margin-bottom: 20px;
 }
 
+.player-input-container {
+    margin-bottom: 20px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.player-input {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 15px;
+}
+
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.autocomplete-dropdown.show {
+    display: block;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.autocomplete-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background: var(--bg-color);
+}
+
+.autocomplete-item.selected {
+    background: var(--primary-color);
+    color: white;
+}
+
+.autocomplete-item .player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.autocomplete-item .player-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.autocomplete-item .player-details {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.player-match-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--bg-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    display: none;
+}
+
+.player-match-info.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.player-match-info .matched-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
 .input-group {
     display: flex;
     flex-direction: column;
@@ -232,7 +342,7 @@ h1 {
 
 .guess-row {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 10px;
     padding: 15px;
     background: var(--bg-color);
@@ -260,11 +370,26 @@ h1 {
     font-size: 0.95rem;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 50px;
+    min-height: 70px;
     animation: cellReveal 0.5s ease-out;
     animation-fill-mode: both;
+}
+
+.guess-cell .cell-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.guess-cell .cell-value {
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 @keyframes cellReveal {
@@ -282,10 +407,11 @@ h1 {
 }
 
 .guess-cell:nth-child(1) { animation-delay: 0.1s; }
-.guess-cell:nth-child(2) { animation-delay: 0.2s; }
-.guess-cell:nth-child(3) { animation-delay: 0.3s; }
-.guess-cell:nth-child(4) { animation-delay: 0.4s; }
-.guess-cell:nth-child(5) { animation-delay: 0.5s; }
+.guess-cell:nth-child(2) { animation-delay: 0.15s; }
+.guess-cell:nth-child(3) { animation-delay: 0.2s; }
+.guess-cell:nth-child(4) { animation-delay: 0.25s; }
+.guess-cell:nth-child(5) { animation-delay: 0.3s; }
+.guess-cell:nth-child(6) { animation-delay: 0.35s; }
 
 .guess-cell.correct {
     background: var(--correct);
@@ -375,8 +501,12 @@ h1 {
     }
 
     .guess-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
+    }
+    
+    .guess-cell {
+        min-height: 60px;
     }
 
     .game-controls {

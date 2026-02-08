@@ -12,13 +12,196 @@ const guessesList = document.getElementById('guessesList');
 const winModal = document.getElementById('winModal');
 const playAgainBtn = document.getElementById('playAgainBtn');
 const winMessage = document.getElementById('winMessage');
+const playerNameInput = document.getElementById('playerName');
+const autocompleteDropdown = document.getElementById('autocompleteDropdown');
+const playerMatchInfo = document.getElementById('playerMatchInfo');
 
-// Input fields
-const conferenceInput = document.getElementById('conference');
-const divisionInput = document.getElementById('division');
-const positionInput = document.getElementById('position');
-const jerseyNumberInput = document.getElementById('jerseyNumber');
-const teamInput = document.getElementById('team');
+// Autocomplete state
+let autocompleteItems = [];
+let selectedIndex = -1;
+let matchedPlayer = null;
+
+// Fuzzy matching algorithm (Levenshtein distance)
+function levenshteinDistance(str1, str2) {
+    const matrix = [];
+    const len1 = str1.length;
+    const len2 = str2.length;
+
+    if (len1 === 0) return len2;
+    if (len2 === 0) return len1;
+
+    for (let i = 0; i <= len1; i++) {
+        matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= len2; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= len1; i++) {
+        for (let j = 1; j <= len2; j++) {
+            if (str1[i - 1] === str2[j - 1]) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j - 1] + 1
+                );
+            }
+        }
+    }
+
+    return matrix[len1][len2];
+}
+
+// Find best matching player
+function findPlayerByName(input) {
+    if (!input || input.trim().length < 2) {
+        return null;
+    }
+
+    const normalizedInput = input.toLowerCase().trim();
+    let bestMatch = null;
+    let bestScore = Infinity;
+
+    // First try exact match (case insensitive)
+    for (const player of NFL_PLAYERS) {
+        const playerName = player.name.toLowerCase();
+        if (playerName === normalizedInput) {
+            return player;
+        }
+    }
+
+    // Try partial matches
+    for (const player of NFL_PLAYERS) {
+        const playerName = player.name.toLowerCase();
+        
+        // Check if input is contained in player name or vice versa
+        if (playerName.includes(normalizedInput) || normalizedInput.includes(playerName)) {
+            const distance = levenshteinDistance(normalizedInput, playerName);
+            if (distance < bestScore) {
+                bestScore = distance;
+                bestMatch = player;
+            }
+        }
+    }
+
+    // If no partial match, try fuzzy matching with threshold
+    if (!bestMatch) {
+        for (const player of NFL_PLAYERS) {
+            const playerName = player.name.toLowerCase();
+            const distance = levenshteinDistance(normalizedInput, playerName);
+            const maxLen = Math.max(normalizedInput.length, playerName.length);
+            const similarity = 1 - (distance / maxLen);
+            
+            // If similarity is above 70%, consider it a match
+            if (similarity >= 0.7 && distance < bestScore) {
+                bestScore = distance;
+                bestMatch = player;
+            }
+        }
+    }
+
+    return bestMatch;
+}
+
+// Get autocomplete suggestions
+function getAutocompleteSuggestions(input) {
+    if (!input || input.trim().length < 2) {
+        return [];
+    }
+
+    const normalizedInput = input.toLowerCase().trim();
+    const suggestions = [];
+
+    for (const player of NFL_PLAYERS) {
+        const playerName = player.name.toLowerCase();
+        
+        if (playerName.includes(normalizedInput) || 
+            playerName.split(' ').some(part => part.startsWith(normalizedInput))) {
+            const distance = levenshteinDistance(normalizedInput, playerName);
+            suggestions.push({ player, distance });
+        }
+    }
+
+    // Sort by distance and limit to 8 results
+    return suggestions
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 8)
+        .map(item => item.player);
+}
+
+// Display autocomplete dropdown
+function showAutocomplete(suggestions) {
+    autocompleteDropdown.innerHTML = '';
+    autocompleteItems = suggestions;
+    selectedIndex = -1;
+
+    if (suggestions.length === 0) {
+        autocompleteDropdown.classList.remove('show');
+        return;
+    }
+
+    suggestions.forEach((player, index) => {
+        const item = document.createElement('div');
+        item.className = 'autocomplete-item';
+        item.innerHTML = `
+            <div class="player-info">
+                <div class="player-name">${player.name}</div>
+                <div class="player-details">${player.position} • ${player.team} • #${player.jersey}</div>
+            </div>
+        `;
+        
+        item.addEventListener('click', () => {
+            selectPlayer(player);
+        });
+
+        item.addEventListener('mouseenter', () => {
+            selectedIndex = index;
+            updateAutocompleteSelection();
+        });
+
+        autocompleteDropdown.appendChild(item);
+    });
+
+    autocompleteDropdown.classList.add('show');
+}
+
+// Update autocomplete selection
+function updateAutocompleteSelection() {
+    const items = autocompleteDropdown.querySelectorAll('.autocomplete-item');
+    items.forEach((item, index) => {
+        if (index === selectedIndex) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
+    });
+}
+
+// Select a player from autocomplete
+function selectPlayer(player) {
+    playerNameInput.value = player.name;
+    matchedPlayer = player;
+    autocompleteDropdown.classList.remove('show');
+    showPlayerMatchInfo(player);
+    submitGuessBtn.disabled = false;
+}
+
+// Show player match info
+function showPlayerMatchInfo(player) {
+    playerMatchInfo.innerHTML = `
+        <strong class="matched-name">${player.name}</strong> - ${player.position} • ${player.team} • #${player.jersey}
+    `;
+    playerMatchInfo.classList.add('show');
+}
+
+// Hide player match info
+function hidePlayerMatchInfo() {
+    playerMatchInfo.classList.remove('show');
+    matchedPlayer = null;
+}
 
 // Initialize game
 function initGame() {
@@ -29,61 +212,72 @@ function initGame() {
     gameStatus.textContent = `Guess the player! (${maxGuesses} guesses remaining)`;
     resetInputs();
     winModal.classList.remove('show');
-    submitGuessBtn.disabled = false;
+    submitGuessBtn.disabled = true;
     
     console.log('Current player:', currentPlayer.name); // For debugging
 }
 
 // Reset input fields
 function resetInputs() {
-    conferenceInput.value = '';
-    divisionInput.value = '';
-    positionInput.value = '';
-    jerseyNumberInput.value = '';
-    teamInput.value = '';
+    playerNameInput.value = '';
+    autocompleteDropdown.classList.remove('show');
+    hidePlayerMatchInfo();
+    matchedPlayer = null;
 }
 
 // Validate guess
 function validateGuess() {
-    if (!conferenceInput.value || !divisionInput.value || !positionInput.value || 
-        !jerseyNumberInput.value || !teamInput.value) {
-        alert('Please fill in all fields!');
+    const input = playerNameInput.value.trim();
+    
+    if (!input) {
+        alert('Please enter a player name!');
         return false;
     }
-    
-    const jerseyNum = parseInt(jerseyNumberInput.value);
-    if (isNaN(jerseyNum) || jerseyNum < 0 || jerseyNum > 99) {
-        alert('Jersey number must be between 0 and 99!');
+
+    // Try to find the player
+    if (!matchedPlayer) {
+        const found = findPlayerByName(input);
+        if (found) {
+            matchedPlayer = found;
+            playerNameInput.value = found.name;
+            showPlayerMatchInfo(found);
+        } else {
+            alert(`Player "${input}" not found. Please check the spelling or try a different player.`);
+            return false;
+        }
+    }
+
+    // Check if already guessed
+    if (guesses.some(g => g.player.name === matchedPlayer.name)) {
+        alert('You already guessed this player!');
         return false;
     }
-    
+
     return true;
 }
 
 // Check if guess is correct
 function checkGuess() {
-    const guess = {
-        conference: conferenceInput.value,
-        division: divisionInput.value,
-        position: positionInput.value,
-        jersey: parseInt(jerseyNumberInput.value),
-        team: teamInput.value
-    };
+    if (!matchedPlayer) {
+        if (!validateGuess()) return;
+    }
+
+    const guessedPlayer = matchedPlayer;
     
     const result = {
-        conference: checkConference(guess.conference),
-        division: checkDivision(guess.division),
-        position: checkPosition(guess.position),
-        jersey: checkJersey(guess.jersey),
-        team: checkTeam(guess.team)
+        name: guessedPlayer.name === currentPlayer.name ? 'correct' : 'incorrect',
+        conference: checkConference(guessedPlayer.conference),
+        division: checkDivision(guessedPlayer.division),
+        position: checkPosition(guessedPlayer.position),
+        jersey: checkJersey(guessedPlayer.jersey),
+        team: checkTeam(guessedPlayer.team)
     };
     
-    guesses.push({ guess, result });
-    displayGuess(guess, result);
+    guesses.push({ player: guessedPlayer, result });
+    displayGuess(guessedPlayer, result);
     
     // Check if won
-    const allCorrect = Object.values(result).every(r => r === 'correct');
-    if (allCorrect) {
+    if (result.name === 'correct') {
         gameWon = true;
         endGame(true);
     } else if (guesses.length >= maxGuesses) {
@@ -146,24 +340,25 @@ function checkTeam(guess) {
     return 'incorrect';
 }
 
-// Display guess result with smooth animation
-function displayGuess(guess, result) {
+// Display guess result
+function displayGuess(player, result) {
     const guessRow = document.createElement('div');
     guessRow.className = 'guess-row';
     
     const fields = [
-        { value: guess.conference, result: result.conference },
-        { value: guess.division, result: result.division },
-        { value: guess.position, result: result.position },
-        { value: guess.jersey.toString(), result: result.jersey },
-        { value: guess.team, result: result.team }
+        { label: 'Name', value: player.name, result: result.name },
+        { label: 'Conference', value: player.conference, result: result.conference },
+        { label: 'Division', value: player.division, result: result.division },
+        { label: 'Position', value: player.position, result: result.position },
+        { label: 'Jersey', value: `#${player.jersey}`, result: result.jersey },
+        { label: 'Team', value: player.team, result: result.team }
     ];
     
     // Initially hide cells for animation
     fields.forEach((field, index) => {
         const cell = document.createElement('div');
         cell.className = `guess-cell ${field.result}`;
-        cell.textContent = field.value;
+        cell.innerHTML = `<div class="cell-label">${field.label}</div><div class="cell-value">${field.value}</div>`;
         cell.style.opacity = '0';
         guessRow.appendChild(cell);
         
@@ -215,32 +410,54 @@ submitGuessBtn.addEventListener('click', () => {
     }
 });
 
-// Allow Enter key to submit
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !gameWon) {
-        submitGuessBtn.click();
+// Player name input event listeners
+playerNameInput.addEventListener('input', (e) => {
+    const input = e.target.value.trim();
+    submitGuessBtn.disabled = true;
+    hidePlayerMatchInfo();
+    
+    if (input.length >= 2) {
+        const suggestions = getAutocompleteSuggestions(input);
+        showAutocomplete(suggestions);
+        
+        // Try to find exact match
+        const found = findPlayerByName(input);
+        if (found && found.name.toLowerCase() === input.toLowerCase()) {
+            matchedPlayer = found;
+            showPlayerMatchInfo(found);
+            submitGuessBtn.disabled = false;
+            autocompleteDropdown.classList.remove('show');
+        }
+    } else {
+        autocompleteDropdown.classList.remove('show');
     }
 });
 
-// Update division options based on conference selection
-conferenceInput.addEventListener('change', () => {
-    const conference = conferenceInput.value;
-    divisionInput.innerHTML = '<option value="">Select...</option>';
-    
-    if (conference === 'AFC') {
-        divisionInput.innerHTML += `
-            <option value="AFC East">AFC East</option>
-            <option value="AFC North">AFC North</option>
-            <option value="AFC South">AFC South</option>
-            <option value="AFC West">AFC West</option>
-        `;
-    } else if (conference === 'NFC') {
-        divisionInput.innerHTML += `
-            <option value="NFC East">NFC East</option>
-            <option value="NFC North">NFC North</option>
-            <option value="NFC South">NFC South</option>
-            <option value="NFC West">NFC West</option>
-        `;
+playerNameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (autocompleteItems.length > 0) {
+            selectedIndex = Math.min(selectedIndex + 1, autocompleteItems.length - 1);
+            updateAutocompleteSelection();
+        }
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, -1);
+        updateAutocompleteSelection();
+    } else if (e.key === 'Enter' && selectedIndex >= 0 && autocompleteItems[selectedIndex]) {
+        e.preventDefault();
+        selectPlayer(autocompleteItems[selectedIndex]);
+    } else if (e.key === 'Enter' && !gameWon) {
+        submitGuessBtn.click();
+    } else if (e.key === 'Escape') {
+        autocompleteDropdown.classList.remove('show');
+    }
+});
+
+// Close autocomplete when clicking outside
+document.addEventListener('click', (e) => {
+    if (!playerNameInput.contains(e.target) && !autocompleteDropdown.contains(e.target)) {
+        autocompleteDropdown.classList.remove('show');
     }
 });
 
