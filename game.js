@@ -55,31 +55,51 @@ function levenshteinDistance(str1, str2) {
     return matrix[len1][len2];
 }
 
-// Find best matching player
+// Find best matching player with improved accuracy
 function findPlayerByName(input) {
     if (!input || input.trim().length < 2) {
         return null;
     }
 
-    const normalizedInput = input.toLowerCase().trim();
+    const normalizedInput = input.toLowerCase().trim().replace(/[.,'"]/g, '');
     let bestMatch = null;
     let bestScore = Infinity;
+    const matches = [];
 
     // First try exact match (case insensitive)
     for (const player of NFL_PLAYERS) {
-        const playerName = player.name.toLowerCase();
+        const playerName = player.name.toLowerCase().replace(/[.,'"]/g, '');
         if (playerName === normalizedInput) {
             return player;
         }
     }
 
-    // Try partial matches
+    // Try partial matches - check if input matches first/last name or is contained
     for (const player of NFL_PLAYERS) {
-        const playerName = player.name.toLowerCase();
+        const playerName = player.name.toLowerCase().replace(/[.,'"]/g, '');
+        const nameParts = playerName.split(' ');
+        const inputParts = normalizedInput.split(' ');
+        
+        // Check if all input parts match player name parts
+        let allPartsMatch = true;
+        if (inputParts.length > 1) {
+            for (const part of inputParts) {
+                if (part.length < 2) continue;
+                if (!nameParts.some(np => np.startsWith(part) || np.includes(part))) {
+                    allPartsMatch = false;
+                    break;
+                }
+            }
+        }
         
         // Check if input is contained in player name or vice versa
-        if (playerName.includes(normalizedInput) || normalizedInput.includes(playerName)) {
+        const isContained = playerName.includes(normalizedInput) || normalizedInput.includes(playerName);
+        const startsWith = nameParts.some(part => part.startsWith(normalizedInput)) || 
+                          nameParts.some(part => normalizedInput.startsWith(part));
+        
+        if (allPartsMatch || isContained || startsWith) {
             const distance = levenshteinDistance(normalizedInput, playerName);
+            matches.push({ player, distance, type: 'partial' });
             if (distance < bestScore) {
                 bestScore = distance;
                 bestMatch = player;
@@ -87,16 +107,17 @@ function findPlayerByName(input) {
         }
     }
 
-    // If no partial match, try fuzzy matching with threshold
-    if (!bestMatch) {
+    // If no good partial match, try fuzzy matching with stricter threshold
+    if (!bestMatch || bestScore > 3) {
         for (const player of NFL_PLAYERS) {
-            const playerName = player.name.toLowerCase();
+            const playerName = player.name.toLowerCase().replace(/[.,'"]/g, '');
             const distance = levenshteinDistance(normalizedInput, playerName);
             const maxLen = Math.max(normalizedInput.length, playerName.length);
             const similarity = 1 - (distance / maxLen);
             
-            // If similarity is above 70%, consider it a match
-            if (similarity >= 0.7 && distance < bestScore) {
+            // Stricter threshold: 80% similarity and max 3 character difference for short names
+            const threshold = normalizedInput.length < 5 ? 0.8 : 0.75;
+            if (similarity >= threshold && distance <= 3 && distance < bestScore) {
                 bestScore = distance;
                 bestMatch = player;
             }
@@ -340,7 +361,7 @@ function checkTeam(guess) {
     return 'incorrect';
 }
 
-// Display guess result
+// Display guess result with Wordle-style tile flip
 function displayGuess(player, result) {
     const guessRow = document.createElement('div');
     guessRow.className = 'guess-row';
@@ -354,19 +375,27 @@ function displayGuess(player, result) {
         { label: 'Team', value: player.team, result: result.team }
     ];
     
-    // Initially hide cells for animation
+    // Create cells with Wordle-style flip animation
     fields.forEach((field, index) => {
         const cell = document.createElement('div');
-        cell.className = `guess-cell ${field.result}`;
-        cell.innerHTML = `<div class="cell-label">${field.label}</div><div class="cell-value">${field.value}</div>`;
-        cell.style.opacity = '0';
+        cell.className = `guess-cell tile`;
+        cell.setAttribute('data-result', field.result);
+        cell.innerHTML = `
+            <div class="tile-front">
+                <div class="cell-label">${field.label}</div>
+                <div class="cell-value">${field.value}</div>
+            </div>
+            <div class="tile-back ${field.result}">
+                <div class="cell-label">${field.label}</div>
+                <div class="cell-value">${field.value}</div>
+            </div>
+        `;
         guessRow.appendChild(cell);
         
-        // Animate each cell with a slight delay
+        // Trigger flip animation with delay (Wordle-style)
         setTimeout(() => {
-            cell.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            cell.style.opacity = '1';
-        }, index * 100);
+            cell.classList.add('flip');
+        }, index * 150);
     });
     
     guessesList.appendChild(guessRow);
@@ -509,13 +538,20 @@ async function initialize() {
     // Wait for player data to be ready
     await initializePlayerData();
     
+    // Ensure we have players before starting
+    if (!NFL_PLAYERS || NFL_PLAYERS.length === 0) {
+        console.error('No players loaded!');
+        gameStatus.textContent = 'Error: No player data available. Please refresh the page.';
+        return;
+    }
+    
     // Small delay to ensure data is loaded
     setTimeout(() => {
         initGame();
         const timestamp = localStorage.getItem('nfl_players_cache_timestamp');
         const lastUpdate = timestamp ? parseInt(timestamp) : null;
         updateDataStatus(NFL_PLAYERS.length, lastUpdate);
-        gameStatus.textContent = `Ready to play!`;
+        gameStatus.textContent = `Ready to play! (${NFL_PLAYERS.length} players available)`;
     }, 100);
 }
 

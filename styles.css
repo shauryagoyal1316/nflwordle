@@ -363,23 +363,71 @@ h1 {
 }
 
 .guess-cell {
-    padding: 12px;
-    text-align: center;
+    position: relative;
+    perspective: 1000px;
+    min-height: 80px;
+}
+
+.guess-cell.tile {
+    position: relative;
+    width: 100%;
+    height: 80px;
+}
+
+.tile-front,
+.tile-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
     border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 70px;
-    animation: cellReveal 0.5s ease-out;
-    animation-fill-mode: both;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tile-front {
+    background: white;
+    transform: rotateY(0deg);
+}
+
+.tile-back {
+    transform: rotateY(180deg);
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.guess-cell.flip .tile-front {
+    transform: rotateY(180deg);
+}
+
+.guess-cell.flip .tile-back {
+    transform: rotateY(0deg);
+}
+
+.tile-back.correct {
+    background: var(--correct);
+    border-color: var(--correct);
+}
+
+.tile-back.partial {
+    background: var(--partial);
+    border-color: var(--partial);
+}
+
+.tile-back.incorrect {
+    background: var(--incorrect);
+    border-color: var(--incorrect);
+    opacity: 0.8;
 }
 
 .guess-cell .cell-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 500;
     opacity: 0.9;
     margin-bottom: 4px;
@@ -388,52 +436,15 @@ h1 {
 }
 
 .guess-cell .cell-value {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
+    word-break: break-word;
+    text-align: center;
 }
 
-@keyframes cellReveal {
-    0% {
-        opacity: 0;
-        transform: scale(0.8) rotateY(90deg);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) rotateY(0deg);
-    }
-}
-
-.guess-cell:nth-child(1) { animation-delay: 0.1s; }
-.guess-cell:nth-child(2) { animation-delay: 0.15s; }
-.guess-cell:nth-child(3) { animation-delay: 0.2s; }
-.guess-cell:nth-child(4) { animation-delay: 0.25s; }
-.guess-cell:nth-child(5) { animation-delay: 0.3s; }
-.guess-cell:nth-child(6) { animation-delay: 0.35s; }
-
-.guess-cell.correct {
-    background: var(--correct);
+.tile-back .cell-label,
+.tile-back .cell-value {
     color: white;
-    transform: scale(1.05);
-}
-
-.guess-cell.partial {
-    background: var(--partial);
-    color: white;
-    transform: scale(1.02);
-}
-
-.guess-cell.incorrect {
-    background: var(--incorrect);
-    color: white;
-    opacity: 0.7;
-}
-
-.guess-cell.empty {
-    background: var(--border-color);
-    color: var(--text-secondary);
 }
 
 .modal {

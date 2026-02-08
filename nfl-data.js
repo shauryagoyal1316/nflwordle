@@ -1,87 +1,212 @@
 // NFL Player Data
 // Automatically updates from API with fallback to cached/static data
 
+// Expanded NFL Player Database - Comprehensive list of current players
 let NFL_PLAYERS = [
-    // AFC East
+    // AFC East - Buffalo Bills
     { name: "Josh Allen", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "QB", jersey: 17 },
+    { name: "Stefon Diggs", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "WR", jersey: 14 },
+    { name: "Von Miller", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "DL", jersey: 40 },
+    { name: "Matt Milano", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "LB", jersey: 58 },
+    { name: "Dawson Knox", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "TE", jersey: 88 },
+    
+    // AFC East - Miami Dolphins
     { name: "Tyreek Hill", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "WR", jersey: 10 },
+    { name: "Tua Tagovailoa", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "QB", jersey: 1 },
+    { name: "Jaylen Waddle", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "WR", jersey: 17 },
+    { name: "Jalen Ramsey", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "CB", jersey: 5 },
+    { name: "Terron Armstead", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "OL", jersey: 72 },
+    
+    // AFC East - New England Patriots
     { name: "Mac Jones", team: "New England Patriots", conference: "AFC", division: "AFC East", position: "QB", jersey: 10 },
+    { name: "Matthew Judon", team: "New England Patriots", conference: "AFC", division: "AFC East", position: "LB", jersey: 9 },
+    { name: "Hunter Henry", team: "New England Patriots", conference: "AFC", division: "AFC East", position: "TE", jersey: 85 },
+    { name: "DeVante Parker", team: "New England Patriots", conference: "AFC", division: "AFC East", position: "WR", jersey: 1 },
+    
+    // AFC East - New York Jets
     { name: "Aaron Rodgers", team: "New York Jets", conference: "AFC", division: "AFC East", position: "QB", jersey: 8 },
+    { name: "Garrett Wilson", team: "New York Jets", conference: "AFC", division: "AFC East", position: "WR", jersey: 17 },
+    { name: "Sauce Gardner", team: "New York Jets", conference: "AFC", division: "AFC East", position: "CB", jersey: 1 },
+    { name: "Quinnen Williams", team: "New York Jets", conference: "AFC", division: "AFC East", position: "DL", jersey: 95 },
     
-    // AFC North
+    // AFC North - Baltimore Ravens
     { name: "Lamar Jackson", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "QB", jersey: 8 },
+    { name: "Mark Andrews", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "TE", jersey: 89 },
+    { name: "Roquan Smith", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "LB", jersey: 0 },
+    { name: "Justin Tucker", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "K", jersey: 9 },
+    { name: "Odell Beckham Jr.", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "WR", jersey: 3 },
+    
+    // AFC North - Cincinnati Bengals
     { name: "Joe Burrow", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "QB", jersey: 9 },
+    { name: "Ja'Marr Chase", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "WR", jersey: 1 },
+    { name: "Tee Higgins", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "WR", jersey: 5 },
+    { name: "Joe Mixon", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "RB", jersey: 28 },
+    { name: "Trey Hendrickson", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "DL", jersey: 91 },
+    
+    // AFC North - Cleveland Browns
     { name: "Deshaun Watson", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "QB", jersey: 4 },
+    { name: "Myles Garrett", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "DL", jersey: 95 },
+    { name: "Nick Chubb", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "RB", jersey: 24 },
+    { name: "Amari Cooper", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "WR", jersey: 2 },
+    { name: "Denzel Ward", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "CB", jersey: 21 },
+    
+    // AFC North - Pittsburgh Steelers
     { name: "T.J. Watt", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "LB", jersey: 90 },
+    { name: "Minkah Fitzpatrick", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "S", jersey: 39 },
+    { name: "Kenny Pickett", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "QB", jersey: 8 },
+    { name: "Diontae Johnson", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "WR", jersey: 18 },
+    { name: "Najee Harris", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "RB", jersey: 22 },
     
-    // AFC South
+    // AFC South - Houston Texans
     { name: "C.J. Stroud", team: "Houston Texans", conference: "AFC", division: "AFC South", position: "QB", jersey: 7 },
+    { name: "Nico Collins", team: "Houston Texans", conference: "AFC", division: "AFC South", position: "WR", jersey: 12 },
+    { name: "Will Anderson", team: "Houston Texans", conference: "AFC", division: "AFC South", position: "DL", jersey: 51 },
+    { name: "Derek Stingley", team: "Houston Texans", conference: "AFC", division: "AFC South", position: "CB", jersey: 24 },
+    
+    // AFC South - Indianapolis Colts
     { name: "Anthony Richardson", team: "Indianapolis Colts", conference: "AFC", division: "AFC South", position: "QB", jersey: 5 },
+    { name: "Jonathan Taylor", team: "Indianapolis Colts", conference: "AFC", division: "AFC South", position: "RB", jersey: 28 },
+    { name: "Michael Pittman", team: "Indianapolis Colts", conference: "AFC", division: "AFC South", position: "WR", jersey: 11 },
+    { name: "DeForest Buckner", team: "Indianapolis Colts", conference: "AFC", division: "AFC South", position: "DL", jersey: 99 },
+    
+    // AFC South - Jacksonville Jaguars
     { name: "Trevor Lawrence", team: "Jacksonville Jaguars", conference: "AFC", division: "AFC South", position: "QB", jersey: 16 },
+    { name: "Travis Etienne", team: "Jacksonville Jaguars", conference: "AFC", division: "AFC South", position: "RB", jersey: 1 },
+    { name: "Calvin Ridley", team: "Jacksonville Jaguars", conference: "AFC", division: "AFC South", position: "WR", jersey: 0 },
+    { name: "Josh Allen", team: "Jacksonville Jaguars", conference: "AFC", division: "AFC South", position: "DL", jersey: 41 },
+    
+    // AFC South - Tennessee Titans
     { name: "Derrick Henry", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "RB", jersey: 22 },
+    { name: "DeAndre Hopkins", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "WR", jersey: 10 },
+    { name: "Will Levis", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "QB", jersey: 8 },
+    { name: "Jeffery Simmons", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "DL", jersey: 98 },
     
-    // AFC West
+    // AFC West - Kansas City Chiefs
     { name: "Patrick Mahomes", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "QB", jersey: 15 },
-    { name: "Justin Herbert", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "QB", jersey: 10 },
-    { name: "Russell Wilson", team: "Denver Broncos", conference: "AFC", division: "AFC West", position: "QB", jersey: 3 },
-    { name: "Davante Adams", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "WR", jersey: 17 },
-    
-    // NFC East
-    { name: "Dak Prescott", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "QB", jersey: 4 },
-    { name: "Jalen Hurts", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "QB", jersey: 1 },
-    { name: "Daniel Jones", team: "New York Giants", conference: "NFC", division: "NFC East", position: "QB", jersey: 8 },
-    { name: "Sam Howell", team: "Washington Commanders", conference: "NFC", division: "NFC East", position: "QB", jersey: 14 },
-    
-    // NFC North
-    { name: "Justin Fields", team: "Chicago Bears", conference: "NFC", division: "NFC North", position: "QB", jersey: 1 },
-    { name: "Jared Goff", team: "Detroit Lions", conference: "NFC", division: "NFC North", position: "QB", jersey: 16 },
-    { name: "Jordan Love", team: "Green Bay Packers", conference: "NFC", division: "NFC North", position: "QB", jersey: 10 },
-    { name: "Kirk Cousins", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "QB", jersey: 8 },
-    
-    // NFC South
-    { name: "Derek Carr", team: "New Orleans Saints", conference: "NFC", division: "NFC South", position: "QB", jersey: 4 },
-    { name: "Baker Mayfield", team: "Tampa Bay Buccaneers", conference: "NFC", division: "NFC South", position: "QB", jersey: 6 },
-    { name: "Bryce Young", team: "Carolina Panthers", conference: "NFC", division: "NFC South", position: "QB", jersey: 9 },
-    { name: "Desmond Ridder", team: "Atlanta Falcons", conference: "NFC", division: "NFC South", position: "QB", jersey: 9 },
-    
-    // NFC West
-    { name: "Kyler Murray", team: "Arizona Cardinals", conference: "NFC", division: "NFC West", position: "QB", jersey: 1 },
-    { name: "Matthew Stafford", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "QB", jersey: 9 },
-    { name: "Brock Purdy", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "QB", jersey: 13 },
-    { name: "Geno Smith", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "QB", jersey: 7 },
-    
-    // Additional notable players
     { name: "Travis Kelce", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "TE", jersey: 87 },
+    { name: "Harrison Butker", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "K", jersey: 7 },
+    { name: "Chris Jones", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "DL", jersey: 95 },
+    { name: "Rashee Rice", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "WR", jersey: 4 },
+    
+    // AFC West - Los Angeles Chargers
+    { name: "Justin Herbert", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "QB", jersey: 10 },
+    { name: "Austin Ekeler", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "RB", jersey: 30 },
+    { name: "Keenan Allen", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "WR", jersey: 13 },
+    { name: "Derwin James", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "S", jersey: 33 },
+    { name: "Khalil Mack", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "DL", jersey: 52 },
+    
+    // AFC West - Denver Broncos
+    { name: "Russell Wilson", team: "Denver Broncos", conference: "AFC", division: "AFC West", position: "QB", jersey: 3 },
+    { name: "Courtland Sutton", team: "Denver Broncos", conference: "AFC", division: "AFC West", position: "WR", jersey: 14 },
+    { name: "Patrick Surtain", team: "Denver Broncos", conference: "AFC", division: "AFC West", position: "CB", jersey: 2 },
+    { name: "Justin Simmons", team: "Denver Broncos", conference: "AFC", division: "AFC West", position: "S", jersey: 31 },
+    
+    // AFC West - Las Vegas Raiders
+    { name: "Davante Adams", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "WR", jersey: 17 },
+    { name: "Josh Jacobs", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "RB", jersey: 8 },
+    { name: "Maxx Crosby", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "DL", jersey: 98 },
+    { name: "Jakobi Meyers", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "WR", jersey: 16 },
+    
+    // NFC East - Dallas Cowboys
+    { name: "Dak Prescott", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "QB", jersey: 4 },
+    { name: "CeeDee Lamb", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "WR", jersey: 88 },
+    { name: "Micah Parsons", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "LB", jersey: 11 },
+    { name: "Tony Pollard", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "RB", jersey: 20 },
+    { name: "Trevon Diggs", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "CB", jersey: 7 },
+    
+    // NFC East - Philadelphia Eagles
+    { name: "Jalen Hurts", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "QB", jersey: 1 },
+    { name: "A.J. Brown", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "WR", jersey: 11 },
+    { name: "DeVonta Smith", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "WR", jersey: 6 },
+    { name: "Dallas Goedert", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "TE", jersey: 88 },
+    { name: "Haason Reddick", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "LB", jersey: 7 },
+    
+    // NFC East - New York Giants
+    { name: "Daniel Jones", team: "New York Giants", conference: "NFC", division: "NFC East", position: "QB", jersey: 8 },
+    { name: "Saquon Barkley", team: "New York Giants", conference: "NFC", division: "NFC East", position: "RB", jersey: 26 },
+    { name: "Darren Waller", team: "New York Giants", conference: "NFC", division: "NFC East", position: "TE", jersey: 12 },
+    { name: "Kayvon Thibodeaux", team: "New York Giants", conference: "NFC", division: "NFC East", position: "DL", jersey: 5 },
+    
+    // NFC East - Washington Commanders
+    { name: "Sam Howell", team: "Washington Commanders", conference: "NFC", division: "NFC East", position: "QB", jersey: 14 },
+    { name: "Terry McLaurin", team: "Washington Commanders", conference: "NFC", division: "NFC East", position: "WR", jersey: 17 },
+    { name: "Jonathan Allen", team: "Washington Commanders", conference: "NFC", division: "NFC East", position: "DL", jersey: 93 },
+    { name: "Chase Young", team: "Washington Commanders", conference: "NFC", division: "NFC East", position: "DL", jersey: 99 },
+    
+    // NFC North - Chicago Bears
+    { name: "Justin Fields", team: "Chicago Bears", conference: "NFC", division: "NFC North", position: "QB", jersey: 1 },
+    { name: "DJ Moore", team: "Chicago Bears", conference: "NFC", division: "NFC North", position: "WR", jersey: 2 },
+    { name: "Khalil Herbert", team: "Chicago Bears", conference: "NFC", division: "NFC North", position: "RB", jersey: 24 },
+    { name: "Montez Sweat", team: "Chicago Bears", conference: "NFC", division: "NFC North", position: "DL", jersey: 98 },
+    
+    // NFC North - Detroit Lions
+    { name: "Jared Goff", team: "Detroit Lions", conference: "NFC", division: "NFC North", position: "QB", jersey: 16 },
+    { name: "Amon-Ra St. Brown", team: "Detroit Lions", conference: "NFC", division: "NFC North", position: "WR", jersey: 14 },
+    { name: "Jahmyr Gibbs", team: "Detroit Lions", conference: "NFC", division: "NFC North", position: "RB", jersey: 26 },
+    { name: "Aidan Hutchinson", team: "Detroit Lions", conference: "NFC", division: "NFC North", position: "DL", jersey: 97 },
+    { name: "Penei Sewell", team: "Detroit Lions", conference: "NFC", division: "NFC North", position: "OL", jersey: 58 },
+    
+    // NFC North - Green Bay Packers
+    { name: "Jordan Love", team: "Green Bay Packers", conference: "NFC", division: "NFC North", position: "QB", jersey: 10 },
+    { name: "Aaron Jones", team: "Green Bay Packers", conference: "NFC", division: "NFC North", position: "RB", jersey: 33 },
+    { name: "Jaire Alexander", team: "Green Bay Packers", conference: "NFC", division: "NFC North", position: "CB", jersey: 23 },
+    { name: "Christian Watson", team: "Green Bay Packers", conference: "NFC", division: "NFC North", position: "WR", jersey: 9 },
+    
+    // NFC North - Minnesota Vikings
+    { name: "Kirk Cousins", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "QB", jersey: 8 },
+    { name: "Justin Jefferson", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "WR", jersey: 18 },
+    { name: "T.J. Hockenson", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "TE", jersey: 87 },
+    { name: "Danielle Hunter", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "DL", jersey: 99 },
+    
+    // NFC South - New Orleans Saints
+    { name: "Derek Carr", team: "New Orleans Saints", conference: "NFC", division: "NFC South", position: "QB", jersey: 4 },
+    { name: "Alvin Kamara", team: "New Orleans Saints", conference: "NFC", division: "NFC South", position: "RB", jersey: 41 },
+    { name: "Chris Olave", team: "New Orleans Saints", conference: "NFC", division: "NFC South", position: "WR", jersey: 12 },
+    { name: "Cameron Jordan", team: "New Orleans Saints", conference: "NFC", division: "NFC South", position: "DL", jersey: 94 },
+    
+    // NFC South - Tampa Bay Buccaneers
+    { name: "Baker Mayfield", team: "Tampa Bay Buccaneers", conference: "NFC", division: "NFC South", position: "QB", jersey: 6 },
+    { name: "Mike Evans", team: "Tampa Bay Buccaneers", conference: "NFC", division: "NFC South", position: "WR", jersey: 13 },
+    { name: "Chris Godwin", team: "Tampa Bay Buccaneers", conference: "NFC", division: "NFC South", position: "WR", jersey: 14 },
+    { name: "Vita Vea", team: "Tampa Bay Buccaneers", conference: "NFC", division: "NFC South", position: "DL", jersey: 50 },
+    
+    // NFC South - Carolina Panthers
+    { name: "Bryce Young", team: "Carolina Panthers", conference: "NFC", division: "NFC South", position: "QB", jersey: 9 },
+    { name: "Adam Thielen", team: "Carolina Panthers", conference: "NFC", division: "NFC South", position: "WR", jersey: 19 },
+    { name: "Brian Burns", team: "Carolina Panthers", conference: "NFC", division: "NFC South", position: "DL", jersey: 0 },
+    { name: "Derrick Brown", team: "Carolina Panthers", conference: "NFC", division: "NFC South", position: "DL", jersey: 95 },
+    
+    // NFC South - Atlanta Falcons
+    { name: "Desmond Ridder", team: "Atlanta Falcons", conference: "NFC", division: "NFC South", position: "QB", jersey: 9 },
+    { name: "Bijan Robinson", team: "Atlanta Falcons", conference: "NFC", division: "NFC South", position: "RB", jersey: 7 },
+    { name: "Kyle Pitts", team: "Atlanta Falcons", conference: "NFC", division: "NFC South", position: "TE", jersey: 8 },
+    { name: "Grady Jarrett", team: "Atlanta Falcons", conference: "NFC", division: "NFC South", position: "DL", jersey: 97 },
+    
+    // NFC West - Arizona Cardinals
+    { name: "Kyler Murray", team: "Arizona Cardinals", conference: "NFC", division: "NFC West", position: "QB", jersey: 1 },
+    { name: "Marquise Brown", team: "Arizona Cardinals", conference: "NFC", division: "NFC West", position: "WR", jersey: 2 },
+    { name: "James Conner", team: "Arizona Cardinals", conference: "NFC", division: "NFC West", position: "RB", jersey: 6 },
+    { name: "Budda Baker", team: "Arizona Cardinals", conference: "NFC", division: "NFC West", position: "S", jersey: 3 },
+    
+    // NFC West - Los Angeles Rams
+    { name: "Matthew Stafford", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "QB", jersey: 9 },
     { name: "Cooper Kupp", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "WR", jersey: 10 },
+    { name: "Aaron Donald", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "DL", jersey: 99 },
+    { name: "Puka Nacua", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "WR", jersey: 17 },
+    
+    // NFC West - San Francisco 49ers
+    { name: "Brock Purdy", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "QB", jersey: 13 },
     { name: "Christian McCaffrey", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "RB", jersey: 23 },
     { name: "Nick Bosa", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "DL", jersey: 97 },
-    { name: "Micah Parsons", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "LB", jersey: 11 },
-    { name: "Myles Garrett", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "DL", jersey: 95 },
-    { name: "Ja'Marr Chase", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "WR", jersey: 1 },
-    { name: "Justin Jefferson", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "WR", jersey: 18 },
-    { name: "CeeDee Lamb", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "WR", jersey: 88 },
-    { name: "Josh Jacobs", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "RB", jersey: 8 },
-    { name: "Jonathan Taylor", team: "Indianapolis Colts", conference: "AFC", division: "AFC South", position: "RB", jersey: 28 },
-    { name: "Saquon Barkley", team: "New York Giants", conference: "NFC", division: "NFC East", position: "RB", jersey: 26 },
-    { name: "Austin Ekeler", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "RB", jersey: 30 },
-    { name: "Alvin Kamara", team: "New Orleans Saints", conference: "NFC", division: "NFC South", position: "RB", jersey: 41 },
-    { name: "Stefon Diggs", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "WR", jersey: 14 },
-    { name: "A.J. Brown", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "WR", jersey: 11 },
-    { name: "DeAndre Hopkins", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "WR", jersey: 10 },
-    { name: "Mark Andrews", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "TE", jersey: 89 },
     { name: "George Kittle", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "TE", jersey: 85 },
-    { name: "T.J. Hockenson", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "TE", jersey: 87 },
-    { name: "Dallas Goedert", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "TE", jersey: 88 },
-    { name: "Aaron Donald", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "DL", jersey: 99 },
-    { name: "Maxx Crosby", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "DL", jersey: 98 },
     { name: "Fred Warner", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "LB", jersey: 54 },
-    { name: "Roquan Smith", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "LB", jersey: 0 },
-    { name: "Jalen Ramsey", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "CB", jersey: 5 },
-    { name: "Jaire Alexander", team: "Green Bay Packers", conference: "NFC", division: "NFC North", position: "CB", jersey: 23 },
-    { name: "Derwin James", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "S", jersey: 33 },
-    { name: "Minkah Fitzpatrick", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "S", jersey: 39 },
-    { name: "Justin Tucker", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "K", jersey: 9 },
-    { name: "Harrison Butker", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "K", jersey: 7 }
+    { name: "Deebo Samuel", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "WR", jersey: 19 },
+    
+    // NFC West - Seattle Seahawks
+    { name: "Geno Smith", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "QB", jersey: 7 },
+    { name: "DK Metcalf", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "WR", jersey: 14 },
+    { name: "Tyler Lockett", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "WR", jersey: 16 },
+    { name: "Bobby Wagner", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "LB", jersey: 54 }
 ];
 
 // Team to Conference/Division mapping
@@ -234,80 +359,121 @@ const ABBREV_TO_TEAM = Object.fromEntries(
     Object.entries(TEAM_ABBREVIATIONS).map(([team, abbrev]) => [abbrev, team])
 );
 
-// Fetch players from ESPN API
+// Fetch players from ESPN API with improved error handling
 async function fetchPlayersFromESPN() {
     try {
-        const season = getCurrentSeason();
-        const allPlayers = [];
+        // Use a timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
         
         // Fetch all teams first
         const teamsResponse = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams?limit=50`, {
             method: 'GET',
-            headers: { 'Accept': 'application/json' }
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
         });
         
-        if (!teamsResponse.ok) throw new Error('Failed to fetch teams');
+        clearTimeout(timeoutId);
+        
+        if (!teamsResponse.ok) {
+            console.warn('ESPN API teams endpoint failed, using static data');
+            return null;
+        }
+        
         const teamsData = await teamsResponse.json();
         
         if (!teamsData.sports || !teamsData.sports[0] || !teamsData.sports[0].leagues || !teamsData.sports[0].leagues[0]) {
-            throw new Error('Invalid teams data structure');
+            console.warn('Invalid teams data structure, using static data');
+            return null;
         }
         
         const teams = teamsData.sports[0].leagues[0].teams || [];
         
-        // Fetch rosters for each team (with rate limiting)
-        const teamPromises = teams.map(async (teamObj, index) => {
+        if (teams.length === 0) {
+            console.warn('No teams found, using static data');
+            return null;
+        }
+        
+        // Fetch rosters for each team (with rate limiting and error handling)
+        const teamPromises = teams.slice(0, 10).map(async (teamObj, index) => {
             // Stagger requests to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, index * 50));
+            await new Promise(resolve => setTimeout(resolve, index * 100));
             
             const team = teamObj.team;
             const teamAbbrev = team.abbreviation;
             const teamName = ABBREV_TO_TEAM[teamAbbrev] || team.displayName;
             
+            if (!teamName || !TEAM_DIVISIONS[teamName]) {
+                return [];
+            }
+            
             try {
-                // Try to fetch roster from ESPN
+                const rosterController = new AbortController();
+                const rosterTimeout = setTimeout(() => rosterController.abort(), 5000);
+                
                 const rosterUrl = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`;
                 const rosterResponse = await fetch(rosterUrl, {
                     method: 'GET',
-                    headers: { 'Accept': 'application/json' }
+                    headers: { 'Accept': 'application/json' },
+                    signal: rosterController.signal
                 });
+                
+                clearTimeout(rosterTimeout);
                 
                 if (!rosterResponse.ok) return [];
                 
                 const rosterData = await rosterResponse.json();
                 
-                if (!rosterData.athletes) return [];
+                if (!rosterData.athletes || !Array.isArray(rosterData.athletes)) return [];
                 
-                return rosterData.athletes.map(athlete => {
-                    const position = normalizePosition(athlete.position?.abbreviation || athlete.position?.name || '');
-                    const jersey = parseInt(athlete.jersey) || 0;
-                    const teamInfo = TEAM_DIVISIONS[teamName];
-                    
-                    if (!teamInfo || !position) return null;
-                    
-                    return {
-                        name: athlete.displayName || athlete.fullName || '',
-                        team: teamName,
-                        conference: teamInfo.conference,
-                        division: teamInfo.division,
-                        position: position,
-                        jersey: jersey
-                    };
-                }).filter(p => p && p.name && p.position);
+                return rosterData.athletes
+                    .filter(athlete => athlete && athlete.displayName)
+                    .map(athlete => {
+                        const position = normalizePosition(athlete.position?.abbreviation || athlete.position?.name || '');
+                        const jersey = parseInt(athlete.jersey) || 0;
+                        const teamInfo = TEAM_DIVISIONS[teamName];
+                        
+                        if (!teamInfo || !position || !athlete.displayName) return null;
+                        
+                        return {
+                            name: athlete.displayName.trim(),
+                            team: teamName,
+                            conference: teamInfo.conference,
+                            division: teamInfo.division,
+                            position: position,
+                            jersey: jersey
+                        };
+                    })
+                    .filter(p => p !== null && p.name.length > 0);
                 
             } catch (e) {
-                console.warn(`Failed to fetch roster for ${teamName}:`, e);
+                // Silently fail for individual teams
                 return [];
             }
         });
         
-        const teamResults = await Promise.all(teamPromises);
-        const players = teamResults.flat().filter(p => p !== null);
+        const teamResults = await Promise.allSettled(teamPromises);
+        const players = teamResults
+            .filter(result => result.status === 'fulfilled')
+            .map(result => result.value)
+            .flat()
+            .filter(p => p !== null && p !== undefined);
         
-        return players.length > 0 ? players : null;
+        // Only return if we got a reasonable number of players
+        if (players.length > 50) {
+            console.log(`Successfully fetched ${players.length} players from ESPN API`);
+            return players;
+        } else {
+            console.warn(`Only fetched ${players.length} players, using static data instead`);
+            return null;
+        }
         
     } catch (error) {
-        console.error('Error fetching from ESPN API:', error);
+        if (error.name === 'AbortError') {
+            console.warn('API request timed out, using static data');
+        } else {
+            console.warn('Error fetching from ESPN API, using static data:', error.message);
+        }
         return null;
     }
 }
