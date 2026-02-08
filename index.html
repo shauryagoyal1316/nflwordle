@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL Wordle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NFL Wordle</h1>
+            <p class="subtitle">Guess the NFL player!</p>
+        </header>
+
+        <div class="game-controls">
+            <button id="newGameBtn" class="btn-primary">New Game</button>
+            <div class="game-info">
+                <span id="gameStatus">Ready to play!</span>
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <span class="spinner"></span>
+                    <span>Updating player data...</span>
+                </div>
+                <div id="dataStatus" class="data-status"></div>
+            </div>
+        </div>
+
+        <div class="guess-section">
+            <div class="guess-input-container">
+                <div class="input-group">
+                    <label for="conference">Conference</label>
+                    <select id="conference" class="guess-input">
+                        <option value="">Select...</option>
+                        <option value="AFC">AFC</option>
+                        <option value="NFC">NFC</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="division">Division</label>
+                    <select id="division" class="guess-input">
+                        <option value="">Select...</option>
+                        <option value="AFC East">AFC East</option>
+                        <option value="AFC North">AFC North</option>
+                        <option value="AFC South">AFC South</option>
+                        <option value="AFC West">AFC West</option>
+                        <option value="NFC East">NFC East</option>
+                        <option value="NFC North">NFC North</option>
+                        <option value="NFC South">NFC South</option>
+                        <option value="NFC West">NFC West</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="position">Position</label>
+                    <select id="position" class="guess-input">
+                        <option value="">Select...</option>
+                        <option value="QB">Quarterback</option>
+                        <option value="RB">Running Back</option>
+                        <option value="WR">Wide Receiver</option>
+                        <option value="TE">Tight End</option>
+                        <option value="OL">Offensive Lineman</option>
+                        <option value="DL">Defensive Lineman</option>
+                        <option value="LB">Linebacker</option>
+                        <option value="CB">Cornerback</option>
+                        <option value="S">Safety</option>
+                        <option value="K">Kicker</option>
+                        <option value="P">Punter</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="jerseyNumber">Jersey #</label>
+                    <input type="number" id="jerseyNumber" class="guess-input" min="0" max="99" placeholder="0-99">
+                </div>
+                <div class="input-group">
+                    <label for="team">Team</label>
+                    <select id="team" class="guess-input">
+                        <option value="">Select...</option>
+                        <option value="Arizona Cardinals">Arizona Cardinals</option>
+                        <option value="Atlanta Falcons">Atlanta Falcons</option>
+                        <option value="Baltimore Ravens">Baltimore Ravens</option>
+                        <option value="Buffalo Bills">Buffalo Bills</option>
+                        <option value="Carolina Panthers">Carolina Panthers</option>
+                        <option value="Chicago Bears">Chicago Bears</option>
+                        <option value="Cincinnati Bengals">Cincinnati Bengals</option>
+                        <option value="Cleveland Browns">Cleveland Browns</option>
+                        <option value="Dallas Cowboys">Dallas Cowboys</option>
+                        <option value="Denver Broncos">Denver Broncos</option>
+                        <option value="Detroit Lions">Detroit Lions</option>
+                        <option value="Green Bay Packers">Green Bay Packers</option>
+                        <option value="Houston Texans">Houston Texans</option>
+                        <option value="Indianapolis Colts">Indianapolis Colts</option>
+                        <option value="Jacksonville Jaguars">Jacksonville Jaguars</option>
+                        <option value="Kansas City Chiefs">Kansas City Chiefs</option>
+                        <option value="Las Vegas Raiders">Las Vegas Raiders</option>
+                        <option value="Los Angeles Chargers">Los Angeles Chargers</option>
+                        <option value="Los Angeles Rams">Los Angeles Rams</option>
+                        <option value="Miami Dolphins">Miami Dolphins</option>
+                        <option value="Minnesota Vikings">Minnesota Vikings</option>
+                        <option value="New England Patriots">New England Patriots</option>
+                        <option value="New Orleans Saints">New Orleans Saints</option>
+                        <option value="New York Giants">New York Giants</option>
+                        <option value="New York Jets">New York Jets</option>
+                        <option value="Philadelphia Eagles">Philadelphia Eagles</option>
+                        <option value="Pittsburgh Steelers">Pittsburgh Steelers</option>
+                        <option value="San Francisco 49ers">San Francisco 49ers</option>
+                        <option value="Seattle Seahawks">Seattle Seahawks</option>
+                        <option value="Tampa Bay Buccaneers">Tampa Bay Buccaneers</option>
+                        <option value="Tennessee Titans">Tennessee Titans</option>
+                        <option value="Washington Commanders">Washington Commanders</option>
+                    </select>
+                </div>
+            </div>
+            <button id="submitGuess" class="btn-submit">Submit Guess</button>
+        </div>
+
+        <div class="guesses-container">
+            <div id="guessesList" class="guesses-list"></div>
+        </div>
+
+        <div id="winModal" class="modal">
+            <div class="modal-content">
+                <h2>🎉 You Got It!</h2>
+                <p id="winMessage"></p>
+                <button id="playAgainBtn" class="btn-primary">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="nfl-data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
