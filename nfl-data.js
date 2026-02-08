@@ -368,21 +368,44 @@ const ABBREV_TO_TEAM = Object.fromEntries(
 // Fetch players from ESPN API with improved error handling
 async function fetchPlayersFromESPN() {
     try {
+        console.log('Attempting to fetch NFL players from ESPN API...');
+        
         // Use a timeout to prevent hanging
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
         
-        // Fetch all teams first
-        const teamsResponse = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams?limit=50`, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' },
-            signal: controller.signal
-        });
+        // Try multiple API endpoints
+        const endpoints = [
+            'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams?limit=50',
+            'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams'
+        ];
+        
+        let teamsResponse = null;
+        let teamsData = null;
+        
+        for (const endpoint of endpoints) {
+            try {
+                teamsResponse = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    signal: controller.signal
+                });
+                
+                if (teamsResponse.ok) {
+                    teamsData = await teamsResponse.json();
+                    break;
+                }
+            } catch (e) {
+                console.warn(`Failed to fetch from ${endpoint}:`, e.message);
+                continue;
+            }
+        }
         
         clearTimeout(timeoutId);
         
-        if (!teamsResponse.ok) {
+        if (!teamsResponse || !teamsResponse.ok || !teamsData) {
             console.warn('ESPN API teams endpoint failed, using static data');
+            console.warn('This might be due to CORS restrictions. The static database will be used instead.');
             return null;
         }
         
@@ -423,32 +446,64 @@ async function fetchPlayersFromESPN() {
                 
                 // Use current season in the roster URL to ensure we get current rosters
                 const season = getCurrentNFLSeason();
-                const rosterUrl = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster?season=${season}`;
-                const rosterResponse = await fetch(rosterUrl, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' },
-                    signal: rosterController.signal
-                });
+                // Try multiple roster endpoint formats
+                const rosterUrls = [
+                    `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster?season=${season}`,
+                    `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`,
+                    `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}`
+                ];
+                
+                let rosterResponse = null;
+                let rosterData = null;
+                
+                for (const rosterUrl of rosterUrls) {
+                    try {
+                        rosterResponse = await fetch(rosterUrl, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' },
+                            signal: rosterController.signal
+                        });
+                        
+                        if (rosterResponse.ok) {
+                            rosterData = await rosterResponse.json();
+                            break;
+                        }
+                    } catch (e) {
+                        continue;
+                    }
+                }
                 
                 clearTimeout(rosterTimeout);
                 
-                if (!rosterResponse.ok) return [];
+                if (!rosterResponse || !rosterResponse.ok || !rosterData) {
+                    console.warn(`Failed to fetch roster for ${teamName}`);
+                    return [];
+                }
                 
-                const rosterData = await rosterResponse.json();
+                // Try different data structures
+                let athletes = null;
+                if (rosterData.athletes && Array.isArray(rosterData.athletes)) {
+                    athletes = rosterData.athletes;
+                } else if (rosterData.team && rosterData.team.roster && Array.isArray(rosterData.team.roster)) {
+                    athletes = rosterData.team.roster;
+                } else if (Array.isArray(rosterData)) {
+                    athletes = rosterData;
+                }
                 
-                if (!rosterData.athletes || !Array.isArray(rosterData.athletes)) return [];
+                if (!athletes || !Array.isArray(athletes)) return [];
                 
-                const players = rosterData.athletes
-                    .filter(athlete => athlete && athlete.displayName)
+                const players = athletes
+                    .filter(athlete => athlete && (athlete.displayName || athlete.fullName || athlete.name))
                     .map(athlete => {
-                        const position = normalizePosition(athlete.position?.abbreviation || athlete.position?.name || '');
-                        const jersey = parseInt(athlete.jersey) || 0;
+                        const playerName = athlete.displayName || athlete.fullName || athlete.name || '';
+                        const position = normalizePosition(athlete.position?.abbreviation || athlete.position?.name || athlete.position || '');
+                        const jersey = parseInt(athlete.jersey || athlete.number || 0) || 0;
                         const teamInfo = TEAM_DIVISIONS[teamName];
                         
-                        if (!teamInfo || !position || !athlete.displayName) return null;
+                        if (!teamInfo || !position || !playerName) return null;
                         
                         return {
-                            name: athlete.displayName.trim(),
+                            name: playerName.trim(),
                             team: teamName,
                             conference: teamInfo.conference,
                             division: teamInfo.division,
