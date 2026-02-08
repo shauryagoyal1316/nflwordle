@@ -319,9 +319,9 @@ function getCurrentSeason() {
     return month < 8 ? year - 1 : year;
 }
 
-// Force current season to 2024 for now (update this as seasons change)
+// Force current season to 2025 (update this as seasons change)
 function getCurrentNFLSeason() {
-    return 2024; // Current NFL season
+    return 2025; // Current NFL season
 }
 
 // Team abbreviations for ESPN API
