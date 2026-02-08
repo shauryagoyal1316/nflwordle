@@ -309,13 +309,19 @@ function normalizePosition(position) {
     return POSITION_MAP[position] || position;
 }
 
-// Get current NFL season year
+// Get current NFL season year (2024 season, will be 2025 in September)
 function getCurrentSeason() {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth(); // 0-11
     // NFL season starts in September, so if we're before September, use previous year
+    // For 2025, if it's before September, we're still in 2024 season
     return month < 8 ? year - 1 : year;
+}
+
+// Force current season to 2024 for now (update this as seasons change)
+function getCurrentNFLSeason() {
+    return 2024; // Current NFL season
 }
 
 // Team abbreviations for ESPN API
@@ -394,16 +400,20 @@ async function fetchPlayersFromESPN() {
             return null;
         }
         
-        // Fetch rosters for each team (with rate limiting and error handling)
-        const teamPromises = teams.slice(0, 10).map(async (teamObj, index) => {
-            // Stagger requests to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, index * 100));
+        // Fetch rosters for ALL teams (with rate limiting and error handling)
+        const totalTeams = teams.length;
+        let completedTeams = 0;
+        
+        const teamPromises = teams.map(async (teamObj, index) => {
+            // Stagger requests to avoid rate limiting (all 32 teams)
+            await new Promise(resolve => setTimeout(resolve, index * 150));
             
             const team = teamObj.team;
             const teamAbbrev = team.abbreviation;
             const teamName = ABBREV_TO_TEAM[teamAbbrev] || team.displayName;
             
             if (!teamName || !TEAM_DIVISIONS[teamName]) {
+                completedTeams++;
                 return [];
             }
             
@@ -411,7 +421,9 @@ async function fetchPlayersFromESPN() {
                 const rosterController = new AbortController();
                 const rosterTimeout = setTimeout(() => rosterController.abort(), 5000);
                 
-                const rosterUrl = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster`;
+                // Use current season in the roster URL to ensure we get current rosters
+                const season = getCurrentNFLSeason();
+                const rosterUrl = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.id}/roster?season=${season}`;
                 const rosterResponse = await fetch(rosterUrl, {
                     method: 'GET',
                     headers: { 'Accept': 'application/json' },
@@ -426,7 +438,7 @@ async function fetchPlayersFromESPN() {
                 
                 if (!rosterData.athletes || !Array.isArray(rosterData.athletes)) return [];
                 
-                return rosterData.athletes
+                const players = rosterData.athletes
                     .filter(athlete => athlete && athlete.displayName)
                     .map(athlete => {
                         const position = normalizePosition(athlete.position?.abbreviation || athlete.position?.name || '');
@@ -446,8 +458,33 @@ async function fetchPlayersFromESPN() {
                     })
                     .filter(p => p !== null && p.name.length > 0);
                 
+                completedTeams++;
+                // Update progress
+                if (typeof showLoadingIndicator === 'function') {
+                    const indicator = document.getElementById('loadingIndicator');
+                    if (indicator) {
+                        const statusText = indicator.querySelector('span:last-child');
+                        if (statusText) {
+                            statusText.textContent = `Fetching players... ${completedTeams}/${totalTeams} teams`;
+                        }
+                    }
+                }
+                
+                return players;
+                
             } catch (e) {
                 // Silently fail for individual teams
+                completedTeams++;
+                // Update progress even on error
+                if (typeof showLoadingIndicator === 'function') {
+                    const indicator = document.getElementById('loadingIndicator');
+                    if (indicator) {
+                        const statusText = indicator.querySelector('span:last-child');
+                        if (statusText) {
+                            statusText.textContent = `Fetching players... ${completedTeams}/${totalTeams} teams`;
+                        }
+                    }
+                }
                 return [];
             }
         });
@@ -459,8 +496,8 @@ async function fetchPlayersFromESPN() {
             .flat()
             .filter(p => p !== null && p !== undefined);
         
-        // Only return if we got a reasonable number of players
-        if (players.length > 50) {
+        // Only return if we got a reasonable number of players (expect 1500+ for all teams)
+        if (players.length > 200) {
             console.log(`Successfully fetched ${players.length} players from ESPN API`);
             return players;
         } else {
@@ -550,10 +587,17 @@ function saveToCache(data) {
 async function updatePlayerData(showLoading = true) {
     if (showLoading && typeof showLoadingIndicator === 'function') {
         showLoadingIndicator();
+        const indicator = document.getElementById('loadingIndicator');
+        if (indicator) {
+            const statusText = indicator.querySelector('span:last-child');
+            if (statusText) {
+                statusText.textContent = 'Fetching all NFL players...';
+            }
+        }
     }
 
     try {
-        // Try to fetch from API
+        // Try to fetch from API (gets ALL players from ALL 32 teams)
         const apiData = await fetchPlayersFromAPI();
         
         if (apiData && apiData.length > 0) {
