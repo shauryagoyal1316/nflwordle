@@ -7,10 +7,10 @@ A Wordle-style guessing game where you try to guess the mystery NFL player by ty
 - 🎮 **Wordle-style gameplay**: Type a player's name to guess the mystery NFL player
 - 🔍 **Smart autocomplete**: Real-time suggestions as you type
 - 🧠 **Fuzzy matching**: Handles typos and partial names automatically
-- 🔄 **Automatic updates**: Fetches current NFL rosters from ESPN API
+- 🔄 **Automatic updates**: Fetches ALL current NFL players from API-Sports NFL API
 - 💾 **Smart caching**: Local cache for fast loading and offline play
 - 🎨 **Modern UI**: Smooth animations and fluid user experience
-- 📊 **Real-time data**: Updates automatically with current 2026+ season players
+- 📊 **Real-time data**: Updates automatically with current season players from all 32 teams
 - ♾️ **Unlimited play**: Play as many games as you want!
 
 ## How to Play
@@ -19,14 +19,13 @@ A Wordle-style guessing game where you try to guess the mystery NFL player by ty
 2. Type a player's name in the input field (e.g., "Patrick Mahomes" or "pat mah")
 3. Select a player from the autocomplete dropdown or press Enter
 4. Click "Submit Guess" to see the Wordle-style comparison
-5. The game shows 6 attributes with color-coded feedback:
-   - **Name**: 🟢 Green if correct
+5. The game shows 5 attributes with color-coded feedback:
    - **Conference**: 🟢 Green if correct, ⚫ Gray if incorrect
-   - **Division**: 🟢 Green if correct, 🟠 Orange if same conference, ⚫ Gray if incorrect
+   - **Division**: 🟢 Green if correct, ⚫ Gray if incorrect
+   - **Team**: 🟢 Green if correct, ⚫ Gray if incorrect
    - **Position**: 🟢 Green if correct, ⚫ Gray if incorrect
-   - **Jersey Number**: 🟢 Green if exact, 🟠 Orange if within 5 numbers, ⚫ Gray if incorrect
-   - **Team**: 🟢 Green if correct, 🟠 Orange if same division, ⚫ Gray if incorrect
-6. Win by guessing the correct player name (up to 6 guesses)
+   - **Jersey Number**: 🟢 Green if exact match, ⬆ Higher if target is higher, ⬇ Lower if target is lower
+6. Win by matching all 5 attributes correctly (up to 6 guesses)
 
 ### Tips
 
@@ -37,18 +36,32 @@ A Wordle-style guessing game where you try to guess the mystery NFL player by ty
 
 ## Technical Details
 
-- **Data Source**: ESPN API (with fallback to cached/static data)
-- **Update Frequency**: Every hour (configurable)
-- **Cache Duration**: 1 hour
+- **Data Source**: API-Sports NFL API (https://v1.american-football.api-sports.io/)
+- **API Key Required**: Get a free API key from https://api-sports.io/ and update `API_KEY` in `nfl-data.js`
+- **Update Frequency**: Every 24 hours (configurable)
+- **Cache Duration**: 24 hours
 - **Browser Support**: Modern browsers with ES6+ support
+- **Fetches**: ALL active players from ALL 32 NFL teams
 
-## How to Run
+## Setup Instructions
 
-### Option 1: Open Directly in Browser
+### 1. Get an API Key
+
+1. Visit https://api-sports.io/ and sign up for a free account
+2. Get your API key from the dashboard
+3. Open `nfl-data.js` and replace `YOUR_API_KEY_HERE` with your actual API key:
+   ```javascript
+   const API_KEY = 'your-actual-api-key-here';
+   ```
+
+### 2. Run the Game
+
+#### Option 1: Open Directly in Browser
 
 1. Clone or download this repository
-2. Open `index.html` in your web browser
-3. That's it! No build process or dependencies required
+2. Update the API key in `nfl-data.js` (see above)
+3. Open `index.html` in your web browser
+4. The game will fetch all NFL players on first load
 
 ### Option 2: Using a Local Server (Recommended)
 

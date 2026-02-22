@@ -342,7 +342,7 @@ h1 {
 
 .guess-row {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
     padding: 15px;
     background: var(--bg-color);
@@ -416,6 +416,16 @@ h1 {
 }
 
 .tile-back.partial {
+    background: var(--partial);
+    border-color: var(--partial);
+}
+
+.tile-back.higher {
+    background: var(--partial);
+    border-color: var(--partial);
+}
+
+.tile-back.lower {
     background: var(--partial);
     border-color: var(--partial);
 }

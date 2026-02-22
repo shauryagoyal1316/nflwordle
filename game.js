@@ -286,19 +286,24 @@ function checkGuess() {
     const guessedPlayer = matchedPlayer;
     
     const result = {
-        name: guessedPlayer.name === currentPlayer.name ? 'correct' : 'incorrect',
         conference: checkConference(guessedPlayer.conference),
         division: checkDivision(guessedPlayer.division),
+        team: checkTeam(guessedPlayer.team),
         position: checkPosition(guessedPlayer.position),
-        jersey: checkJersey(guessedPlayer.jersey),
-        team: checkTeam(guessedPlayer.team)
+        jersey: checkJersey(guessedPlayer.jersey)
     };
     
     guesses.push({ player: guessedPlayer, result });
     displayGuess(guessedPlayer, result);
     
-    // Check if won
-    if (result.name === 'correct') {
+    // Check if won - all attributes must match
+    const allCorrect = result.conference === 'correct' && 
+                       result.division === 'correct' && 
+                       result.team === 'correct' && 
+                       result.position === 'correct' && 
+                       result.jersey === 'correct';
+    
+    if (allCorrect) {
         gameWon = true;
         endGame(true);
     } else if (guesses.length >= maxGuesses) {
@@ -322,11 +327,6 @@ function checkDivision(guess) {
     if (guess === currentPlayer.division) {
         return 'correct';
     }
-    // Check if same conference
-    const guessConference = guess.startsWith('AFC') ? 'AFC' : 'NFC';
-    if (guessConference === currentPlayer.conference) {
-        return 'partial';
-    }
     return 'incorrect';
 }
 
@@ -341,10 +341,11 @@ function checkJersey(guess) {
     if (guess === currentPlayer.jersey) {
         return 'correct';
     }
-    // Partial credit if within 5 numbers
-    const diff = Math.abs(guess - currentPlayer.jersey);
-    if (diff <= 5) {
-        return 'partial';
+    if (guess < currentPlayer.jersey) {
+        return 'higher'; // Guessed number is lower, target is higher
+    }
+    if (guess > currentPlayer.jersey) {
+        return 'lower'; // Guessed number is higher, target is lower
     }
     return 'incorrect';
 }
@@ -352,11 +353,6 @@ function checkJersey(guess) {
 function checkTeam(guess) {
     if (guess === currentPlayer.team) {
         return 'correct';
-    }
-    // Check if same division
-    const teamInfo = TEAM_DIVISIONS[guess];
-    if (teamInfo && teamInfo.division === currentPlayer.division) {
-        return 'partial';
     }
     return 'incorrect';
 }
@@ -366,13 +362,20 @@ function displayGuess(player, result) {
     const guessRow = document.createElement('div');
     guessRow.className = 'guess-row';
     
+    // Format jersey number with arrow indicators
+    let jerseyDisplay = `#${player.jersey}`;
+    if (result.jersey === 'higher') {
+        jerseyDisplay = `#${player.jersey} ⬆`;
+    } else if (result.jersey === 'lower') {
+        jerseyDisplay = `#${player.jersey} ⬇`;
+    }
+    
     const fields = [
-        { label: 'Name', value: player.name, result: result.name },
         { label: 'Conference', value: player.conference, result: result.conference },
         { label: 'Division', value: player.division, result: result.division },
+        { label: 'Team', value: player.team, result: result.team },
         { label: 'Position', value: player.position, result: result.position },
-        { label: 'Jersey', value: `#${player.jersey}`, result: result.jersey },
-        { label: 'Team', value: player.team, result: result.team }
+        { label: 'Jersey', value: jerseyDisplay, result: result.jersey }
     ];
     
     // Create cells with Wordle-style flip animation
@@ -505,20 +508,9 @@ function hideLoadingIndicator() {
     }
 }
 
-// Update data status display
+// Update data status display (removed per requirements)
 function updateDataStatus(count, lastUpdate) {
-    const dataStatus = document.getElementById('dataStatus');
-    if (!dataStatus) return;
-    
-    if (count > 0) {
-        const updateText = lastUpdate 
-            ? `Updated ${formatTimeAgo(lastUpdate)}`
-            : 'Using cached data';
-        dataStatus.textContent = `${count} players • ${updateText}`;
-        dataStatus.style.display = 'block';
-    } else {
-        dataStatus.style.display = 'none';
-    }
+    // Status display removed per requirements
 }
 
 function formatTimeAgo(timestamp) {
@@ -547,11 +539,21 @@ async function initialize() {
     
     // Small delay to ensure data is loaded
     setTimeout(() => {
-        initGame();
-        const timestamp = localStorage.getItem('nfl_players_cache_timestamp');
-        const lastUpdate = timestamp ? parseInt(timestamp) : null;
-        updateDataStatus(NFL_PLAYERS.length, lastUpdate);
-        gameStatus.textContent = `Ready to play! (${NFL_PLAYERS.length} players available)`;
+        if (NFL_PLAYERS.length === 0) {
+            gameStatus.textContent = 'Loading players...';
+            // Wait a bit more for API to load
+            setTimeout(() => {
+                if (NFL_PLAYERS.length > 0) {
+                    initGame();
+                    gameStatus.textContent = `Ready to play!`;
+                } else {
+                    gameStatus.textContent = 'Error: No players loaded. Please check API key configuration.';
+                }
+            }, 2000);
+        } else {
+            initGame();
+            gameStatus.textContent = `Ready to play!`;
+        }
     }, 100);
 }
 
