@@ -527,8 +527,13 @@ function formatTimeAgo(timestamp) {
 
 // Initialize on page load
 async function initialize() {
+    gameStatus.textContent = 'Loading players...';
+    
     // Wait for player data to be ready
     await initializePlayerData();
+    
+    // Wait a moment for data to populate
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Ensure we have players before starting
     if (!NFL_PLAYERS || NFL_PLAYERS.length === 0) {
@@ -537,24 +542,9 @@ async function initialize() {
         return;
     }
     
-    // Small delay to ensure data is loaded
-    setTimeout(() => {
-        if (NFL_PLAYERS.length === 0) {
-            gameStatus.textContent = 'Loading players...';
-            // Wait a bit more for API to load
-            setTimeout(() => {
-                if (NFL_PLAYERS.length > 0) {
-                    initGame();
-                    gameStatus.textContent = `Ready to play!`;
-                } else {
-                    gameStatus.textContent = 'Error: No players loaded. Please check API key configuration.';
-                }
-            }, 2000);
-        } else {
-            initGame();
-            gameStatus.textContent = `Ready to play!`;
-        }
-    }, 100);
+    // Initialize game with available players
+    initGame();
+    gameStatus.textContent = `Ready to play! (${NFL_PLAYERS.length} players available)`;
 }
 
 // Override new game to refresh data occasionally
