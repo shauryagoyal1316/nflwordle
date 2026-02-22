@@ -112,7 +112,9 @@ async function fetchAllPlayersFromAPI() {
         console.log('Fetching all NFL players from API-Sports...');
         
         const allPlayers = [];
-        const season = new Date().getFullYear();
+        // Use 2024 season (current NFL season as of early 2025)
+        const season = 2024;
+        console.log(`Fetching players for season ${season}...`);
         
         // Get all teams first - API-Sports NFL endpoint
         // Try both authentication methods for compatibility
@@ -137,10 +139,25 @@ async function fetchAllPlayersFromAPI() {
         if (!teamsResponse.ok) {
             const errorText = await teamsResponse.text();
             console.error(`Teams API failed: ${teamsResponse.status}`, errorText);
-            throw new Error(`Teams API failed: ${teamsResponse.status}`);
+            
+            // Check for CORS or authentication errors
+            if (teamsResponse.status === 0 || teamsResponse.status === 403 || teamsResponse.status === 401) {
+                console.error('API authentication or CORS issue. Check API key and CORS settings.');
+            }
+            
+            throw new Error(`Teams API failed: ${teamsResponse.status} - ${errorText.substring(0, 200)}`);
         }
 
         const teamsData = await teamsResponse.json();
+        
+        // Log response for debugging
+        console.log('Teams API Response:', JSON.stringify(teamsData).substring(0, 500));
+        
+        // Check for API errors in response
+        if (teamsData.errors && teamsData.errors.length > 0) {
+            console.error('API Errors:', teamsData.errors);
+            throw new Error(`API Errors: ${JSON.stringify(teamsData.errors)}`);
+        }
         
         // API-Sports response structure: { get: "...", parameters: {...}, errors: [], results: N, response: [...] }
         if (!teamsData.response || !Array.isArray(teamsData.response)) {
@@ -183,23 +200,34 @@ async function fetchAllPlayersFromAPI() {
                 }
 
                 if (!playersResponse.ok) {
-                    console.warn(`Failed to fetch players for ${teamName}: ${playersResponse.status}`);
+                    const errorText = await playersResponse.text();
+                    console.warn(`Failed to fetch players for ${teamName}: ${playersResponse.status}`, errorText.substring(0, 200));
                     return [];
                 }
 
                 const playersData = await playersResponse.json();
                 const teamPlayers = [];
                 
+                // Log response structure for debugging
+                if (teamPlayers.length === 0 && playersData) {
+                    console.log(`API Response for ${teamName}:`, JSON.stringify(playersData).substring(0, 500));
+                }
+                
                 // API-Sports response structure: { get: "...", parameters: {...}, errors: [], results: N, response: [...] }
                 if (playersData.response && Array.isArray(playersData.response)) {
                     playersData.response.forEach(player => {
                         // Handle different possible response structures
                         const playerObj = player.player || player;
-                        const playerName = playerObj.name || '';
-                        const playerPosition = playerObj.position || playerObj.positions?.primary || '';
+                        const playerName = playerObj.name || playerObj.firstname + ' ' + playerObj.lastname || '';
+                        const playerPosition = playerObj.position || playerObj.positions?.primary || playerObj.positions?.position || '';
                         const playerJersey = playerObj.number || playerObj.jersey || player.number || 0;
-                        const isActive = playerObj.active !== false && player.active !== false && 
-                                        (playerObj.injured !== true && player.injured !== true);
+                        
+                        // Check active status - API-Sports may use different fields
+                        const isActive = playerObj.active !== false && 
+                                        player.active !== false && 
+                                        playerObj.injured !== true && 
+                                        player.injured !== true &&
+                                        (playerObj.status !== 'Inactive' && player.status !== 'Inactive');
                         
                         // Only include active players with valid data
                         if (isActive && playerName && playerPosition) {
@@ -207,11 +235,11 @@ async function fetchAllPlayersFromAPI() {
                             const jersey = parseInt(playerJersey) || 0;
                             const teamInfo = TEAM_DIVISIONS[teamName];
                             
-                            // Only include players with valid jersey numbers
-                            if (position && teamInfo && playerName && jersey > 0) {
+                            // Include players with valid data (jersey can be 0 for some positions)
+                            if (position && teamInfo && playerName) {
                                 teamPlayers.push({
                                     id: playerObj.id || player.id || Math.random(),
-                                    name: playerName,
+                                    name: playerName.trim(),
                                     team: teamName,
                                     conference: teamInfo.conference,
                                     division: teamInfo.division,
@@ -221,6 +249,10 @@ async function fetchAllPlayersFromAPI() {
                             }
                         }
                     });
+                } else if (playersData.errors && playersData.errors.length > 0) {
+                    console.error(`API errors for ${teamName}:`, playersData.errors);
+                } else {
+                    console.warn(`Unexpected response structure for ${teamName}:`, playersData);
                 }
                 
                 if (teamPlayers.length > 0) {
@@ -247,7 +279,11 @@ async function fetchAllPlayersFromAPI() {
             }
         });
 
-        console.log(`Successfully fetched ${allPlayers.length} active NFL players from API-Sports`);
+        if (allPlayers.length === 0) {
+            console.error('No players fetched from API. Check API response structure and filters.');
+        } else {
+            console.log(`Successfully fetched ${allPlayers.length} active NFL players from API-Sports`);
+        }
         return allPlayers.length > 0 ? allPlayers : null;
 
     } catch (error) {
