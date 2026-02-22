@@ -115,13 +115,24 @@ async function fetchAllPlayersFromAPI() {
         const season = new Date().getFullYear();
         
         // Get all teams first - API-Sports NFL endpoint
-        const teamsResponse = await fetch(`${API_BASE_URL}/teams?league=1&season=${season}`, {
+        // Try both authentication methods for compatibility
+        let teamsResponse = await fetch(`${API_BASE_URL}/teams?league=1&season=${season}`, {
             method: 'GET',
             headers: {
-                'x-rapidapi-key': API_KEY,
-                'x-rapidapi-host': 'v1.american-football.api-sports.io'
+                'x-apisports-key': API_KEY
             }
         });
+        
+        // Fallback to RapidAPI format if first fails
+        if (!teamsResponse.ok) {
+            teamsResponse = await fetch(`${API_BASE_URL}/teams?league=1&season=${season}`, {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': API_KEY,
+                    'x-rapidapi-host': 'v1.american-football.api-sports.io'
+                }
+            });
+        }
 
         if (!teamsResponse.ok) {
             const errorText = await teamsResponse.text();
@@ -152,13 +163,24 @@ async function fetchAllPlayersFromAPI() {
 
             try {
                 // Fetch players for this team - API-Sports endpoint
-                const playersResponse = await fetch(`${API_BASE_URL}/players?team=${teamId}&season=${season}`, {
+                // Try primary authentication method first
+                let playersResponse = await fetch(`${API_BASE_URL}/players?team=${teamId}&season=${season}`, {
                     method: 'GET',
                     headers: {
-                        'x-rapidapi-key': API_KEY,
-                        'x-rapidapi-host': 'v1.american-football.api-sports.io'
+                        'x-apisports-key': API_KEY
                     }
                 });
+                
+                // Fallback to RapidAPI format if first fails
+                if (!playersResponse.ok) {
+                    playersResponse = await fetch(`${API_BASE_URL}/players?team=${teamId}&season=${season}`, {
+                        method: 'GET',
+                        headers: {
+                            'x-rapidapi-key': API_KEY,
+                            'x-rapidapi-host': 'v1.american-football.api-sports.io'
+                        }
+                    });
+                }
 
                 if (!playersResponse.ok) {
                     console.warn(`Failed to fetch players for ${teamName}: ${playersResponse.status}`);
@@ -168,14 +190,16 @@ async function fetchAllPlayersFromAPI() {
                 const playersData = await playersResponse.json();
                 const teamPlayers = [];
                 
-                // API-Sports response structure
+                // API-Sports response structure: { get: "...", parameters: {...}, errors: [], results: N, response: [...] }
                 if (playersData.response && Array.isArray(playersData.response)) {
                     playersData.response.forEach(player => {
-                        // Get player data - API-Sports structure may vary
-                        const playerName = player.name || player.player?.name || '';
-                        const playerPosition = player.position || player.positions?.primary || '';
-                        const playerJersey = player.number || player.jersey || 0;
-                        const isActive = player.active !== false && player.injured !== true;
+                        // Handle different possible response structures
+                        const playerObj = player.player || player;
+                        const playerName = playerObj.name || '';
+                        const playerPosition = playerObj.position || playerObj.positions?.primary || '';
+                        const playerJersey = playerObj.number || playerObj.jersey || player.number || 0;
+                        const isActive = playerObj.active !== false && player.active !== false && 
+                                        (playerObj.injured !== true && player.injured !== true);
                         
                         // Only include active players with valid data
                         if (isActive && playerName && playerPosition) {
@@ -183,9 +207,10 @@ async function fetchAllPlayersFromAPI() {
                             const jersey = parseInt(playerJersey) || 0;
                             const teamInfo = TEAM_DIVISIONS[teamName];
                             
-                            if (position && teamInfo && playerName) {
+                            // Only include players with valid jersey numbers
+                            if (position && teamInfo && playerName && jersey > 0) {
                                 teamPlayers.push({
-                                    id: player.id || player.player?.id || Math.random(),
+                                    id: playerObj.id || player.id || Math.random(),
                                     name: playerName,
                                     team: teamName,
                                     conference: teamInfo.conference,
@@ -196,6 +221,10 @@ async function fetchAllPlayersFromAPI() {
                             }
                         }
                     });
+                }
+                
+                if (teamPlayers.length > 0) {
+                    console.log(`✓ Fetched ${teamPlayers.length} players from ${teamName}`);
                 }
 
                 // Rate limiting - small delay between requests
