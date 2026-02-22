@@ -117,21 +117,22 @@ async function fetchAllPlayersFromAPI() {
         console.log(`Fetching players for season ${season}...`);
         
         // Get all teams first - API-Sports NFL endpoint
-        // Try both authentication methods for compatibility
+        // Try RapidAPI format first (most common for API-Sports)
         let teamsResponse = await fetch(`${API_BASE_URL}/teams?league=1&season=${season}`, {
             method: 'GET',
             headers: {
-                'x-apisports-key': API_KEY
+                'x-rapidapi-key': API_KEY,
+                'x-rapidapi-host': 'v1.american-football.api-sports.io'
             }
         });
         
-        // Fallback to RapidAPI format if first fails
+        // Fallback to alternative authentication if first fails
         if (!teamsResponse.ok) {
+            console.log('Trying alternative authentication method...');
             teamsResponse = await fetch(`${API_BASE_URL}/teams?league=1&season=${season}`, {
                 method: 'GET',
                 headers: {
-                    'x-rapidapi-key': API_KEY,
-                    'x-rapidapi-host': 'v1.american-football.api-sports.io'
+                    'x-apisports-key': API_KEY
                 }
             });
         }
@@ -180,21 +181,21 @@ async function fetchAllPlayersFromAPI() {
 
             try {
                 // Fetch players for this team - API-Sports endpoint
-                // Try primary authentication method first
+                // Try RapidAPI format first (most common)
                 let playersResponse = await fetch(`${API_BASE_URL}/players?team=${teamId}&season=${season}`, {
                     method: 'GET',
                     headers: {
-                        'x-apisports-key': API_KEY
+                        'x-rapidapi-key': API_KEY,
+                        'x-rapidapi-host': 'v1.american-football.api-sports.io'
                     }
                 });
                 
-                // Fallback to RapidAPI format if first fails
+                // Fallback to alternative authentication if first fails
                 if (!playersResponse.ok) {
                     playersResponse = await fetch(`${API_BASE_URL}/players?team=${teamId}&season=${season}`, {
                         method: 'GET',
                         headers: {
-                            'x-rapidapi-key': API_KEY,
-                            'x-rapidapi-host': 'v1.american-football.api-sports.io'
+                            'x-apisports-key': API_KEY
                         }
                     });
                 }
