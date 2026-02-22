@@ -547,15 +547,13 @@ async function initialize() {
     gameStatus.textContent = `Ready to play! (${NFL_PLAYERS.length} players available)`;
 }
 
-// Override new game to refresh data occasionally
+// Override new game to always refresh data from API
 let gameCount = 0;
 const originalInitGame = initGame;
 initGame = function() {
     gameCount++;
-    // Refresh data every 5 games
-    if (gameCount % 5 === 0) {
-        updatePlayerData(false);
-    }
+    // Always refresh data from API every game to ensure current players
+    updatePlayerData(false);
     originalInitGame();
 };
 

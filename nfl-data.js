@@ -311,39 +311,10 @@ async function updatePlayerData(showLoading = true) {
             return apiData;
         }
         
-        // Fallback to cached data
-        const cached = getCachedData();
-        if (cached && cached.length > 0) {
-            NFL_PLAYERS = cached;
-            const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-            const lastUpdate = timestamp ? parseInt(timestamp) : null;
-            
-            if (typeof updateDataStatus === 'function') {
-                updateDataStatus(cached.length, lastUpdate);
-            }
-            
-            if (showLoading && typeof hideLoadingIndicator === 'function') {
-                hideLoadingIndicator();
-            }
-            return cached;
-        }
+        // No API data - return empty (cached data only used temporarily in initializePlayerData)
+        // Main requirement: Always call API, no fallback players
         
-        // No data available - use fallback
-        if (FALLBACK_PLAYERS && FALLBACK_PLAYERS.length > 0) {
-            NFL_PLAYERS = FALLBACK_PLAYERS;
-            console.log('Using fallback player data');
-            
-            if (typeof updateDataStatus === 'function') {
-                updateDataStatus(FALLBACK_PLAYERS.length, null);
-            }
-            
-            if (showLoading && typeof hideLoadingIndicator === 'function') {
-                hideLoadingIndicator();
-            }
-            return FALLBACK_PLAYERS;
-        }
-        
-        // No data available
+        // No data available - API must be called
         if (typeof updateDataStatus === 'function') {
             updateDataStatus(0, null);
         }
@@ -352,18 +323,22 @@ async function updatePlayerData(showLoading = true) {
             hideLoadingIndicator();
         }
         
-        console.error('No player data available. Please check API key configuration.');
+        console.error('API fetch failed. No player data available. Please refresh the page to try again.');
         return [];
         
     } catch (error) {
         console.error('Error updating player data:', error);
         
+        // On error, try cached data only if it exists (but still require API for fresh data)
         const cached = getCachedData();
         if (cached && cached.length > 0) {
             NFL_PLAYERS = cached;
+            console.warn('Using cached data due to API error. Please refresh to fetch fresh data.');
             if (typeof updateDataStatus === 'function') {
                 updateDataStatus(cached.length, null);
             }
+        } else {
+            NFL_PLAYERS = [];
         }
         
         if (showLoading && typeof hideLoadingIndicator === 'function') {
@@ -383,103 +358,25 @@ function getRandomPlayer() {
     return NFL_PLAYERS[randomIndex];
 }
 
-// Fallback static player list - ensures game works even without API
-const FALLBACK_PLAYERS = [
-    { name: "Patrick Mahomes", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "QB", jersey: 15 },
-    { name: "Josh Allen", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "QB", jersey: 17 },
-    { name: "Lamar Jackson", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "QB", jersey: 8 },
-    { name: "Joe Burrow", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "QB", jersey: 9 },
-    { name: "Justin Herbert", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "QB", jersey: 10 },
-    { name: "Tua Tagovailoa", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "QB", jersey: 1 },
-    { name: "Trevor Lawrence", team: "Jacksonville Jaguars", conference: "AFC", division: "AFC South", position: "QB", jersey: 16 },
-    { name: "C.J. Stroud", team: "Houston Texans", conference: "AFC", division: "AFC South", position: "QB", jersey: 7 },
-    { name: "Jalen Hurts", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "QB", jersey: 1 },
-    { name: "Dak Prescott", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "QB", jersey: 4 },
-    { name: "Brock Purdy", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "QB", jersey: 13 },
-    { name: "Matthew Stafford", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "QB", jersey: 9 },
-    { name: "Geno Smith", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "QB", jersey: 7 },
-    { name: "Kyler Murray", team: "Arizona Cardinals", conference: "NFC", division: "NFC West", position: "QB", jersey: 1 },
-    { name: "Jordan Love", team: "Green Bay Packers", conference: "NFC", division: "NFC North", position: "QB", jersey: 10 },
-    { name: "Jared Goff", team: "Detroit Lions", conference: "NFC", division: "NFC North", position: "QB", jersey: 16 },
-    { name: "Kirk Cousins", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "QB", jersey: 8 },
-    { name: "Justin Fields", team: "Chicago Bears", conference: "NFC", division: "NFC North", position: "QB", jersey: 1 },
-    { name: "Baker Mayfield", team: "Tampa Bay Buccaneers", conference: "NFC", division: "NFC South", position: "QB", jersey: 6 },
-    { name: "Derek Carr", team: "New Orleans Saints", conference: "NFC", division: "NFC South", position: "QB", jersey: 4 },
-    { name: "Desmond Ridder", team: "Atlanta Falcons", conference: "NFC", division: "NFC South", position: "QB", jersey: 9 },
-    { name: "Bryce Young", team: "Carolina Panthers", conference: "NFC", division: "NFC South", position: "QB", jersey: 9 },
-    { name: "Daniel Jones", team: "New York Giants", conference: "NFC", division: "NFC East", position: "QB", jersey: 8 },
-    { name: "Sam Howell", team: "Washington Commanders", conference: "NFC", division: "NFC East", position: "QB", jersey: 14 },
-    { name: "Aaron Rodgers", team: "New York Jets", conference: "AFC", division: "AFC East", position: "QB", jersey: 8 },
-    { name: "Mac Jones", team: "New England Patriots", conference: "AFC", division: "AFC East", position: "QB", jersey: 10 },
-    { name: "Russell Wilson", team: "Denver Broncos", conference: "AFC", division: "AFC West", position: "QB", jersey: 3 },
-    { name: "Anthony Richardson", team: "Indianapolis Colts", conference: "AFC", division: "AFC South", position: "QB", jersey: 5 },
-    { name: "Will Levis", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "QB", jersey: 7 },
-    { name: "Kenny Pickett", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "QB", jersey: 8 },
-    { name: "Deshaun Watson", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "QB", jersey: 4 },
-    { name: "Christian McCaffrey", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "RB", jersey: 23 },
-    { name: "Derrick Henry", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "RB", jersey: 22 },
-    { name: "Josh Jacobs", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "RB", jersey: 8 },
-    { name: "Saquon Barkley", team: "New York Giants", conference: "NFC", division: "NFC East", position: "RB", jersey: 26 },
-    { name: "Austin Ekeler", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "RB", jersey: 30 },
-    { name: "Breece Hall", team: "New York Jets", conference: "AFC", division: "AFC East", position: "RB", jersey: 20 },
-    { name: "Jonathan Taylor", team: "Indianapolis Colts", conference: "AFC", division: "AFC South", position: "RB", jersey: 28 },
-    { name: "Travis Kelce", team: "Kansas City Chiefs", conference: "AFC", division: "AFC West", position: "TE", jersey: 87 },
-    { name: "Mark Andrews", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "TE", jersey: 89 },
-    { name: "George Kittle", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "TE", jersey: 85 },
-    { name: "Tyreek Hill", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "WR", jersey: 10 },
-    { name: "CeeDee Lamb", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "WR", jersey: 88 },
-    { name: "Justin Jefferson", team: "Minnesota Vikings", conference: "NFC", division: "NFC North", position: "WR", jersey: 18 },
-    { name: "Ja'Marr Chase", team: "Cincinnati Bengals", conference: "AFC", division: "AFC North", position: "WR", jersey: 1 },
-    { name: "Cooper Kupp", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "WR", jersey: 10 },
-    { name: "Stefon Diggs", team: "Buffalo Bills", conference: "AFC", division: "AFC East", position: "WR", jersey: 14 },
-    { name: "Davante Adams", team: "Las Vegas Raiders", conference: "AFC", division: "AFC West", position: "WR", jersey: 17 },
-    { name: "A.J. Brown", team: "Philadelphia Eagles", conference: "NFC", division: "NFC East", position: "WR", jersey: 11 },
-    { name: "DeAndre Hopkins", team: "Tennessee Titans", conference: "AFC", division: "AFC South", position: "WR", jersey: 10 },
-    { name: "Mike Evans", team: "Tampa Bay Buccaneers", conference: "NFC", division: "NFC South", position: "WR", jersey: 13 },
-    { name: "Keenan Allen", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "WR", jersey: 13 },
-    { name: "Amari Cooper", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "WR", jersey: 2 },
-    { name: "DK Metcalf", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "WR", jersey: 14 },
-    { name: "Terry McLaurin", team: "Washington Commanders", conference: "NFC", division: "NFC East", position: "WR", jersey: 17 },
-    { name: "T.J. Watt", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "DL", jersey: 90 },
-    { name: "Myles Garrett", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "DL", jersey: 95 },
-    { name: "Nick Bosa", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "DL", jersey: 97 },
-    { name: "Aaron Donald", team: "Los Angeles Rams", conference: "NFC", division: "NFC West", position: "DL", jersey: 99 },
-    { name: "Micah Parsons", team: "Dallas Cowboys", conference: "NFC", division: "NFC East", position: "LB", jersey: 11 },
-    { name: "Roquan Smith", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "LB", jersey: 0 },
-    { name: "Fred Warner", team: "San Francisco 49ers", conference: "NFC", division: "NFC West", position: "LB", jersey: 54 },
-    { name: "Bobby Wagner", team: "Seattle Seahawks", conference: "NFC", division: "NFC West", position: "LB", jersey: 45 },
-    { name: "Sauce Gardner", team: "New York Jets", conference: "AFC", division: "AFC East", position: "CB", jersey: 1 },
-    { name: "Jalen Ramsey", team: "Miami Dolphins", conference: "AFC", division: "AFC East", position: "CB", jersey: 5 },
-    { name: "Patrick Surtain II", team: "Denver Broncos", conference: "AFC", division: "AFC West", position: "CB", jersey: 2 },
-    { name: "Denzel Ward", team: "Cleveland Browns", conference: "AFC", division: "AFC North", position: "CB", jersey: 21 },
-    { name: "Minkah Fitzpatrick", team: "Pittsburgh Steelers", conference: "AFC", division: "AFC North", position: "S", jersey: 39 },
-    { name: "Derwin James", team: "Los Angeles Chargers", conference: "AFC", division: "AFC West", position: "S", jersey: 33 },
-    { name: "Justin Tucker", team: "Baltimore Ravens", conference: "AFC", division: "AFC North", position: "K", jersey: 9 }
-];
-
-// Initialize data on load
+// Initialize data on load - ALWAYS calls API, no fallback players
 async function initializePlayerData() {
-    // Load cached data immediately for instant startup
+    // Always call API first - no fallback players
+    const apiData = await updatePlayerData(true);
+    
+    if (apiData && apiData.length > 0) {
+        NFL_PLAYERS = apiData;
+        return;
+    }
+    
+    // If API fails, try cached data temporarily (but still require API refresh)
     const cached = getCachedData();
     if (cached && cached.length > 0) {
         NFL_PLAYERS = cached;
-        const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-        const lastUpdate = timestamp ? parseInt(timestamp) : null;
-        
-        if (typeof updateDataStatus === 'function') {
-            updateDataStatus(cached.length, lastUpdate);
-        }
-    } else {
-        // Use fallback players if no cache
-        NFL_PLAYERS = FALLBACK_PLAYERS;
-        console.log('Using fallback player data');
+        console.warn('Using cached data. API fetch failed. Please refresh to fetch fresh data from API.');
+        return;
     }
     
-    // Then update in background
-    const cacheAge = cached ? Date.now() - parseInt(localStorage.getItem(CACHE_TIMESTAMP_KEY) || '0') : Infinity;
-    if (cacheAge > CACHE_DURATION) {
-        updatePlayerData(true);
-    } else {
-        updatePlayerData(false);
-    }
+    // No data available - API must be called
+    NFL_PLAYERS = [];
+    console.error('No player data available. API call required. Please refresh the page.');
 }
