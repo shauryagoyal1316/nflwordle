@@ -112,8 +112,8 @@ async function fetchAllPlayersFromAPI() {
         console.log('Fetching all NFL players from API-Sports...');
         
         const allPlayers = [];
-        // Use 2024 season (current NFL season as of early 2025)
-        const season = 2024;
+        // Current NFL season: 2026-2027
+        const season = 2026;
         console.log(`Fetching players for season ${season}...`);
         
         // Get all teams first - API-Sports NFL endpoint
