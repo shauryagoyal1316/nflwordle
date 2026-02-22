@@ -329,22 +329,15 @@ async function updatePlayerData(showLoading = true) {
     } catch (error) {
         console.error('Error updating player data:', error);
         
-        // On error, try cached data only if it exists (but still require API for fresh data)
-        const cached = getCachedData();
-        if (cached && cached.length > 0) {
-            NFL_PLAYERS = cached;
-            console.warn('Using cached data due to API error. Please refresh to fetch fresh data.');
-            if (typeof updateDataStatus === 'function') {
-                updateDataStatus(cached.length, null);
-            }
-        } else {
-            NFL_PLAYERS = [];
-        }
+        // On error, return empty - API must be called successfully
+        NFL_PLAYERS = [];
         
         if (showLoading && typeof hideLoadingIndicator === 'function') {
             hideLoadingIndicator();
         }
-        return NFL_PLAYERS || [];
+        
+        console.error('API call failed. Please refresh the page to try again.');
+        return [];
     }
 }
 
@@ -368,15 +361,7 @@ async function initializePlayerData() {
         return;
     }
     
-    // If API fails, try cached data temporarily (but still require API refresh)
-    const cached = getCachedData();
-    if (cached && cached.length > 0) {
-        NFL_PLAYERS = cached;
-        console.warn('Using cached data. API fetch failed. Please refresh to fetch fresh data from API.');
-        return;
-    }
-    
-    // No data available - API must be called
+    // No data available - API must be called successfully
     NFL_PLAYERS = [];
-    console.error('No player data available. API call required. Please refresh the page.');
+    console.error('API call failed. No player data available. Please refresh the page to try again.');
 }
